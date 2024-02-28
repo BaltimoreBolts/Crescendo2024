@@ -107,14 +107,14 @@ public class Constants {
       5,
       4,
       1,
-      Rotation2d.fromDegrees(260.9)
+      Rotation2d.fromDegrees(25.0)
     );
     //mod 1 = back left
     public static final SwerveModuleConstants MOD_1_Constants = new SwerveModuleConstants(
       7,
       6,
       2,
-      Rotation2d.fromDegrees(295.6)
+      Rotation2d.fromDegrees(202.9)
     );
 
     //mod 2 = front left
@@ -122,7 +122,7 @@ public class Constants {
       9,
       8,
       3,
-      Rotation2d.fromDegrees(293.4)
+      Rotation2d.fromDegrees(226.0)
     );
 
     //mod 3 = front right
@@ -130,7 +130,7 @@ public class Constants {
       3,
       2,
       0,
-      Rotation2d.fromDegrees(314.2)
+      Rotation2d.fromDegrees(351.5)
     );
   }
 
