@@ -27,7 +27,7 @@ public class Intake extends SubsystemBase {
   
   public void intake(){
 
-    this.intakeMotor = new CANSparkMax(5, MotorType.kBrushless);
+    this.intakeMotor = new CANSparkMax(14, MotorType.kBrushless);
     this.intakeMotor.restoreFactoryDefaults();
     this.intakeMotor.setSmartCurrentLimit(40);
     this.intakeMotor.burnFlash();
