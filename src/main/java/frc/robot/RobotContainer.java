@@ -37,6 +37,7 @@ public class RobotContainer {
 
     swerve = new Swerve();
     intake = new Intake();
+    intakeCommands = new IntakeCommands();
     
 
     SmartDashboard.putNumber("drive/speed", 0.0);
