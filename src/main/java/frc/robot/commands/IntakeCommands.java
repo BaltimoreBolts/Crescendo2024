@@ -17,7 +17,7 @@ public class IntakeCommands extends SequentialCommandGroup{
   }
 
   public Command intakeNoteStop(Intake intake){
-    return (intakeNote(intake).withTimeout(5.0)).andThen(new RunCommand(() -> intake.intakeOff()));
+    return (intakeNote(intake).withTimeout(2.0)).andThen(new RunCommand(() -> intake.intakeOff()));
   }
 
 
