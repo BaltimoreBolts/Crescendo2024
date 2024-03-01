@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import java.util.function.BooleanSupplier;
@@ -25,10 +26,10 @@ public class Intake extends SubsystemBase {
   private DigitalInput noteAtIntake;
   private DigitalInput noteAtShooter;
   
-  public void intake(){
+  public Intake(){
 
     this.intakeMotor = new CANSparkMax(14, MotorType.kBrushless);
-    this.intakeMotor.restoreFactoryDefaults();
+    this.intakeMotor.setIdleMode(IdleMode.kBrake);
     this.intakeMotor.setSmartCurrentLimit(40);
     this.intakeMotor.burnFlash();
     //intakeMotorEncoder = intakeMotor.getEncoder();
@@ -37,7 +38,7 @@ public class Intake extends SubsystemBase {
     noteAtShooter = new DigitalInput(1);
   }
 
-  final double intakeSpeed = 0.1;
+  final double intakeSpeed = -0.3;
   final double outakeSpeed = 0.1;
 
   @Override
@@ -58,13 +59,16 @@ public class Intake extends SubsystemBase {
   public BooleanSupplier seeShooterSupplier() {
     return noteAtShooter::get;
   }
+
   public void intakeOff() {
+    //this.intakeMotor.set(0.0);
     this.power = 0;
   }
   private void outtake() {
     this.power = -outakeSpeed;
   }
-  private void intakeFast() {
+  public void intakeFast() {
+    //this.intakeMotor.set(.1);
     this.power = intakeSpeed;
   }
 
