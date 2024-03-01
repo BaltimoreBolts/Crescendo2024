@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.Intake;
@@ -71,9 +70,12 @@ public class RobotContainer {
 
     driver.y().onTrue(new InstantCommand(() -> swerve.resetOdometry(new Pose2d())));
 
-    //driver.x().onTrue(new InstantCommand(() -> intakeCommands.intakeNoteStop(intake)));
-
     driver.x().onTrue(intakeCommands.intakeNoteStop(intake));
+    
+    //test this
+    //driver.x().onTrue(intakeCommands.amazingIntaking(intake));
+    //and this
+    //driver.x().onTrue(intakeCommands.amazingIntaking2(intake));
   }
 
     /**
