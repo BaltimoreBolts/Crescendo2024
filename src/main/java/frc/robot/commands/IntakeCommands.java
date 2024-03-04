@@ -17,6 +17,9 @@ public class IntakeCommands extends SequentialCommandGroup{
   public Command intakeNoteTime(Intake intake){
     return (intakeNote(intake).andThen(new WaitCommand(6))).andThen(intake.intakeOffCommand());
   }
+  public Command outakeNoteTime(Intake intake){
+    return (intake.outakeFastCommand().andThen(new WaitCommand(3))).andThen(intake.intakeOffCommand());
+  }
   public Command intakeNoteTimeSlow(Intake intake){
     return (intakeNoteSlow(intake).andThen(new WaitCommand(6))).andThen(intake.intakeOffCommand());
   }
