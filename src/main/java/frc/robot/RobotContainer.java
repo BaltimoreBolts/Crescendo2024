@@ -70,13 +70,18 @@ public class RobotContainer {
 
     driver.y().onTrue(new InstantCommand(() -> swerve.resetOdometry(new Pose2d())));
 
+    // driver.x().onTrue(intake.intakeSlowCommand());
+    // driver.b().onTrue(intake.intakeMediumCommand());
+    // driver.a().onTrue(intake.intakeFastCommand());
+
     driver.x().onTrue(intakeCommands.intakeNoteStop(intake));
     driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
     
     //test this
+
     driver.b().onTrue(intakeCommands.amazingIntaking(intake));
     //and this
-    driver.rightBumper().onTrue(intakeCommands.amazingIntaking2(intake));
+    driver.rightBumper().onTrue(intakeCommands.amazingIntaking3(intake));
   }
 
     /**

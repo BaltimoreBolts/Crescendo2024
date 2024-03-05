@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMax;
 //import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,10 +34,12 @@ public class Intake extends SubsystemBase {
     //intakeMotorEncoder = intakeMotor.getEncoder();
 
     noteAtIntake = new DigitalInput(0);
+
     noteAtShooter = new DigitalInput(1);
   }
 
-  final double intakeFastSpeed = 0.75;
+  final double intakeFastSpeed = 0.7;
+  final double intakeMediumSpeed = 0.4;
   final double intakeSlowSpeed = 0.3;
 
   final double outakeSpeed = 0.3;
@@ -45,6 +48,8 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     this.intakeMotor.set(power);
+    SmartDashboard.putBoolean("At Shooter", noteAtShooter.get());
+    SmartDashboard.putBoolean("At Intake", noteAtIntake.get());
   }
   
   public Command intakeOffCommand() {
@@ -59,6 +64,9 @@ public class Intake extends SubsystemBase {
   public Command intakeFastCommand() {
     return new InstantCommand(() -> intakeFast());
   }
+  public Command intakeMediumCommand() {
+    return new InstantCommand(() -> intakeMedium());
+  }
   public Command intakeSlowCommand() {
     return new InstantCommand(() -> intakeSlow());
   }
@@ -68,6 +76,11 @@ public class Intake extends SubsystemBase {
   }
   public BooleanSupplier seeIntakeSupplier() {
     return noteAtIntake::get;
+  }
+
+  public boolean notSeeIntake() {
+    boolean notIntake = seeIntakeSupplier().getAsBoolean();
+    return !notIntake;
   }
 
   public void intakeOff() {
@@ -81,6 +94,9 @@ public class Intake extends SubsystemBase {
   }
   public void intakeFast() {
     this.power = -intakeFastSpeed;
+  }
+  public void intakeMedium() {
+    this.power = -intakeMediumSpeed;
   }
   public void intakeSlow() {
     this.power = -intakeSlowSpeed;
