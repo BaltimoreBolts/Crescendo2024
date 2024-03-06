@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.IntakeCommands;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Hangers;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Swerve;
 
@@ -29,6 +31,10 @@ public class RobotContainer {
 
   public final IntakeCommands intakeCommands;
 
+  public final Hangers m_hangers = new Hangers();
+
+  public final Arm m_arm = new Arm();
+
 
   // public final AutoCommands auto;
 
@@ -46,6 +52,7 @@ public class RobotContainer {
 
     SmartDashboard.putBoolean("At Shooter", false);
     SmartDashboard.putBoolean("At Intake", false);
+    SmartDashboard.putNumber("Spot", 0);
     // auto = new AutoCommands(swerve);
 
     // Configure button bindings
@@ -60,13 +67,13 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    swerve.setDefaultCommand(swerve.drive(
-      () -> -Constants.kControls.X_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)),
-      () -> -Constants.kControls.Y_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS)), 
-      () -> -Constants.kControls.THETA_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.ROTATION_AXIS)),
-      true,
-      true
-    ));
+    // swerve.setDefaultCommand(swerve.drive(
+    //   () -> -Constants.kControls.X_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)),
+    //   () -> -Constants.kControls.Y_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS)), 
+    //   () -> -Constants.kControls.THETA_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.ROTATION_AXIS)),
+    //   true,
+    //   true
+    // ));
 
     driver.y().onTrue(new InstantCommand(() -> swerve.resetOdometry(new Pose2d())));
 
@@ -74,9 +81,12 @@ public class RobotContainer {
     // driver.b().onTrue(intake.intakeMediumCommand());
     // driver.a().onTrue(intake.intakeFastCommand());
 
-    driver.x().onTrue(intakeCommands.intakeNoteStop(intake));
+    driver.x().onTrue(intakeCommands.intakeNoteTime(intake));
     driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
-    
+
+    driver.a().onTrue(m_hangers.setPowerCommand(() -> -driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)*12));
+    driver.a().onFalse(m_hangers.setPowerCommand(() -> 0.0));
+
     //test this
 
     driver.b().onTrue(intakeCommands.amazingIntaking(intake));

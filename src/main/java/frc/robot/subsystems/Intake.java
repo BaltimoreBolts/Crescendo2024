@@ -53,6 +53,7 @@ public class Intake extends SubsystemBase {
   }
   
   public Command intakeOffCommand() {
+    SmartDashboard.putNumber("Spot", 3);
     return new InstantCommand(() -> intakeOff());
   }
   public Command outtakeCommand() {
@@ -76,11 +77,6 @@ public class Intake extends SubsystemBase {
   }
   public BooleanSupplier seeIntakeSupplier() {
     return noteAtIntake::get;
-  }
-
-  public boolean notSeeIntake() {
-    boolean notIntake = seeIntakeSupplier().getAsBoolean();
-    return !notIntake;
   }
 
   public void intakeOff() {

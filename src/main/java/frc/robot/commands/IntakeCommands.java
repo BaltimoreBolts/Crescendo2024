@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -10,12 +11,20 @@ public class IntakeCommands extends SequentialCommandGroup{
   public Command intakeNote(Intake intake){
     return intake.intakeFastCommand().until(intake.seeShooterSupplier());
   }
+  public Command intakeNoteIntake(Intake intake){
+    SmartDashboard.putNumber("Spot", 1);
+    return intake.intakeFastCommand().until(intake.seeIntakeSupplier());
+  }
   public Command intakeNoteSlow(Intake intake){
+    SmartDashboard.putNumber("Spot", 2);
     return intake.intakeSlowCommand().until(intake.seeShooterSupplier());
   }
 
   public Command intakeNoteTime(Intake intake){
     return (intakeNote(intake).andThen(new WaitCommand(6))).andThen(intake.intakeOffCommand());
+  }
+  public Command intakeNoteToBottom(Intake intake){
+    return intakeNoteTime(intake).until(intake.seeIntakeSupplier());
   }
   public Command outakeNoteTime(Intake intake){
     return (intake.outakeFastCommand().andThen(new WaitCommand(3))).andThen(intake.intakeOffCommand());
@@ -44,10 +53,10 @@ public class IntakeCommands extends SequentialCommandGroup{
     return (intakeNoteTime(intake).until(intake.seeShooterSupplier()).andThen(intake.outakeFastCommand())
     .until(intake.seeShooterSupplier()).andThen(intake.intakeOffCommand())).withTimeout(10);
   }
-
+  
   public Command amazingIntaking3(Intake intake){
-    return (intakeNoteTime(intake).until(intake.seeIntakeSupplier()).andThen(intakeNoteSlow(intake))
-    .until(intake.seeShooterSupplier()).andThen(intake.intakeOffCommand())).withTimeout(10);
+    return (intakeNoteToBottom(intake).andThen(intakeNoteSlow(intake))
+    .andThen(intake.intakeOffCommand())).withTimeout(10);
   }
 
 
