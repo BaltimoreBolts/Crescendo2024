@@ -3,10 +3,10 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.growingstems.measurements.Angle;
 
 public class Arm extends SubsystemBase {
 
@@ -17,12 +17,10 @@ public class Arm extends SubsystemBase {
 
   private final RelativeEncoder m_RelativeEncoder;
 
-  private static final Rotation2d k_reverseHardStop =
-      Rotation2d.fromRotations(0.790).times(-1.0);
-  private static final Rotation2d k_fwdHardStop =
-      Rotation2d.fromRotations(0.222).times(-1.0);
+  private static final Angle k_reverseHardStop = Angle.degrees(0.790).neg();
+  private static final Angle k_fwdHardStop = Angle.degrees(0.222).neg();
 
-  private final Rotation2d m_absOffset;
+  private final Angle m_absOffset;
 
   private static final double k_sensorRatio = 16.0 / 32.0;
 
@@ -44,25 +42,25 @@ public class Arm extends SubsystemBase {
 
     m_AbsEncoder.setDutyCycleRange(1.0 / 1025.0, 1024.0 / 1025.0);
 
-    m_absOffset = getRawAbsPos().minus(k_reverseHardStop);
+    m_absOffset = getRawAbsPos().sub(k_reverseHardStop);
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("getRawAbsPos", getRawAbsPos().getDegrees());
-    SmartDashboard.putNumber("getAbsPos", getAbsPos().getDegrees());
-    SmartDashboard.putNumber("getRawRelPos", getRawRelPos().getDegrees());
+    SmartDashboard.putNumber("getRawAbsPos", getRawAbsPos().asDegrees());
+    SmartDashboard.putNumber("getAbsPos", getAbsPos().asDegrees());
+    SmartDashboard.putNumber("getRawRelPos", getRawRelPos().asDegrees());
   }
 
-  private Rotation2d getRawAbsPos() {
-    return Rotation2d.fromRotations(-m_AbsEncoder.getAbsolutePosition());
+  private Angle getRawAbsPos() {
+    return Angle.rotations(-m_AbsEncoder.getAbsolutePosition());
   }
 
-  private Rotation2d getAbsPos() {
-    return getRawAbsPos().minus(k_reverseHardStop).times(k_sensorRatio);
+  private Angle getAbsPos() {
+    return getRawAbsPos().sub(k_reverseHardStop).mul(k_sensorRatio);
   }
 
-  private Rotation2d getRawRelPos() {
-    return Rotation2d.fromRotations(m_RelativeEncoder.getPosition());
+  private Angle getRawRelPos() {
+    return Angle.rotations(m_RelativeEncoder.getPosition());
   }
 }
