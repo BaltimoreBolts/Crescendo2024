@@ -1,19 +1,17 @@
 package frc.robot.utils;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
-
-import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.AnalogEncoder;
 import frc.robot.Constants;
-
 
 public class SwerveModule {
   public final int moduleNumber;
@@ -26,7 +24,7 @@ public class SwerveModule {
   private final CANSparkMax angleMotor;
   private final RelativeEncoder angleEncoder;
   private final SparkPIDController anglePID;
-  
+
   private final AnalogEncoder m_turningEncoder;
   private final Rotation2d m_thriftyOffsetDegrees;
 
@@ -39,11 +37,12 @@ public class SwerveModule {
 
   public SwerveModule(int moduleNumber, SwerveModuleConstants constants) {
     this.moduleNumber = moduleNumber;
-    
+
     driveMotor = new CANSparkMax(constants.driveMotorID, MotorType.kBrushless);
     driveEncoder = driveMotor.getEncoder();
     drivePID = driveMotor.getPIDController();
-    driveFeedforward = new SimpleMotorFeedforward(Constants.kSwerve.DRIVE_KS, Constants.kSwerve.DRIVE_KV, Constants.kSwerve.DRIVE_KA);
+    driveFeedforward = new SimpleMotorFeedforward(
+        Constants.kSwerve.DRIVE_KS, Constants.kSwerve.DRIVE_KV, Constants.kSwerve.DRIVE_KA);
 
     angleMotor = new CANSparkMax(constants.angleMotorID, MotorType.kBrushless);
     angleEncoder = angleMotor.getEncoder();
@@ -66,20 +65,24 @@ public class SwerveModule {
       setDriveVelocity(state.speedMetersPerSecond);
     }
 
-    Rotation2d angle = Math.abs(state.speedMetersPerSecond) <= Constants.kSwerve.MAX_VELOCITY_METERS_PER_SECOND * 0.01
-      ? lastAngle
-      : state.angle;
+    Rotation2d angle = Math.abs(state.speedMetersPerSecond)
+            <= Constants.kSwerve.MAX_VELOCITY_METERS_PER_SECOND * 0.01
+        ? lastAngle
+        : state.angle;
 
     setSteerAngle(angle);
     lastAngle = angle;
   }
 
   public Rotation2d getSteerAngle() {
-    return Rotation2d.fromRotations(angleMotor.getEncoder().getPosition() * Constants.kSwerve.k_turnGearRatio).plus(m_startupOffset);
+    return Rotation2d.fromRotations(
+            angleMotor.getEncoder().getPosition() * Constants.kSwerve.k_turnGearRatio)
+        .plus(m_startupOffset);
   }
 
   public Rotation2d getSteerRawAngle() {
-    return Rotation2d.fromRotations(angleMotor.getEncoder().getPosition()).times(Constants.kSwerve.k_turnGearRatio);
+    return Rotation2d.fromRotations(angleMotor.getEncoder().getPosition())
+        .times(Constants.kSwerve.k_turnGearRatio);
   }
 
   public Rotation2d getThriftyAngle() {
@@ -91,7 +94,9 @@ public class SwerveModule {
   }
 
   public double getDisance() {
-    return driveEncoder.getPosition() / Constants.kSwerve.DRIVE_GEAR_RATIO * Constants.kSwerve.WHEEL_CIRCUMFERENCE;
+    return driveEncoder.getPosition()
+        / Constants.kSwerve.DRIVE_GEAR_RATIO
+        * Constants.kSwerve.WHEEL_CIRCUMFERENCE;
   }
 
   public double getDriveRawVelocity() {
@@ -99,7 +104,9 @@ public class SwerveModule {
   }
 
   public double getDriveVelocity() {
-    return (driveEncoder.getVelocity() / Constants.kSwerve.DRIVE_GEAR_RATIO) * Constants.kSwerve.WHEEL_CIRCUMFERENCE / 60;
+    return (driveEncoder.getVelocity() / Constants.kSwerve.DRIVE_GEAR_RATIO)
+        * Constants.kSwerve.WHEEL_CIRCUMFERENCE
+        / 60;
   }
 
   public double getDriveError() {
@@ -130,12 +137,12 @@ public class SwerveModule {
     driveMotor.setOpenLoopRampRate(Constants.kSwerve.OPEN_LOOP_RAMP);
     driveMotor.setClosedLoopRampRate(Constants.kSwerve.CLOSED_LOOP_RAMP);
     driveMotor.setSmartCurrentLimit(Constants.kSwerve.DRIVE_CURRENT_LIMIT);
- 
+
     drivePID.setP(Constants.kSwerve.DRIVE_KP);
     drivePID.setI(Constants.kSwerve.DRIVE_KI);
     drivePID.setD(Constants.kSwerve.DRIVE_KD);
     drivePID.setFF(Constants.kSwerve.DRIVE_KF);
- 
+
     driveEncoder.setPositionConversionFactor(1);
     driveEncoder.setVelocityConversionFactor(1);
     driveEncoder.setPosition(0);
@@ -165,25 +172,34 @@ public class SwerveModule {
   }
 
   private void setSteerAngle(Rotation2d angle_rad) {
-    double position = (angle_rad.minus(m_startupOffset).getRotations() / Constants.kSwerve.k_turnGearRatio);
+    double position =
+        (angle_rad.minus(m_startupOffset).getRotations() / Constants.kSwerve.k_turnGearRatio);
     anglePID.setReference(position, ControlType.kPosition);
   }
 
-  private void setDrivePower(double pctSpeed){
+  private void setDrivePower(double pctSpeed) {
     drivePID.setReference(pctSpeed, CANSparkMax.ControlType.kDutyCycle);
   }
 
   public void setDriveVelocity(double velocity) {
     if (Math.abs(velocity) >= 0.01) {
-      drivePID.setReference(velocity / Constants.kSwerve.WHEEL_CIRCUMFERENCE * Constants.kSwerve.DRIVE_GEAR_RATIO * 60, ControlType.kVelocity);
+      drivePID.setReference(
+          velocity
+              / Constants.kSwerve.WHEEL_CIRCUMFERENCE
+              * Constants.kSwerve.DRIVE_GEAR_RATIO
+              * 60,
+          ControlType.kVelocity);
     } else {
       driveMotor.stopMotor();
     }
     lastGoalVelocity = velocity;
-    lastVelocity = velocity / Constants.kSwerve.DRIVE_GEAR_RATIO * Units.metersToInches(Constants.kSwerve.WHEEL_CIRCUMFERENCE) / 60;
+    lastVelocity = velocity
+        / Constants.kSwerve.DRIVE_GEAR_RATIO
+        * Units.metersToInches(Constants.kSwerve.WHEEL_CIRCUMFERENCE)
+        / 60;
   }
 
-  public void setPID(double kP, double kI, double kD){
+  public void setPID(double kP, double kI, double kD) {
     drivePID.setP(kP);
     drivePID.setI(kI);
     drivePID.setD(kD);

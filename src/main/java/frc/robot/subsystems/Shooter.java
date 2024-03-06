@@ -29,7 +29,7 @@ public class Shooter extends SubsystemBase {
   private final PWMSparkMax m_feederMotor = new PWMSparkMax(14);
 
   // The shooter wheel encoder
-  
+
   private Encoder m_shooterEncoder;
 
   // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
@@ -40,45 +40,40 @@ public class Shooter extends SubsystemBase {
   private final MutableMeasure<Velocity<Angle>> m_velocity = mutable(RotationsPerSecond.of(0));
 
   // Create a new SysId routine for characterizing the shooter.
-  private final SysIdRoutine m_sysIdRoutine =
-      new SysIdRoutine(
-          // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
-          new SysIdRoutine.Config(),
-          new SysIdRoutine.Mechanism(
-              // Tell SysId how to plumb the driving voltage to the motor(s).
-              (Measure<Voltage> volts) -> {
-                m_shooterMotor.setVoltage(volts.in(Volts));
-              },
-              // Tell SysId how to record a frame of data for each motor on the mechanism being
-              // characterized.
-              log -> {
-                // Record a frame for the shooter motor.
-                log.motor("shooter-wheel")
-                    .voltage(
-                        m_appliedVoltage.mut_replace(
-                            m_shooterMotor.get() * RobotController.getBatteryVoltage(), Volts))
-                    .angularPosition(m_angle.mut_replace(m_shooterEncoder.getDistance(), Rotations))
-                    .angularVelocity(
-                        m_velocity.mut_replace(m_shooterEncoder.getRate(), RotationsPerSecond));
-              },
-              // Tell SysId to make generated commands require this subsystem, suffix test state in
-              // WPILog with this subsystem's name ("shooter")
-              this));
+  private final SysIdRoutine m_sysIdRoutine = new SysIdRoutine(
+      // Empty config defaults to 1 volt/second ramp rate and 7 volt step voltage.
+      new SysIdRoutine.Config(),
+      new SysIdRoutine.Mechanism(
+          // Tell SysId how to plumb the driving voltage to the motor(s).
+          (Measure<Voltage> volts) -> {
+            m_shooterMotor.setVoltage(volts.in(Volts));
+          },
+          // Tell SysId how to record a frame of data for each motor on the mechanism being
+          // characterized.
+          log -> {
+            // Record a frame for the shooter motor.
+            log.motor("shooter-wheel")
+                .voltage(m_appliedVoltage.mut_replace(
+                    m_shooterMotor.get() * RobotController.getBatteryVoltage(), Volts))
+                .angularPosition(m_angle.mut_replace(m_shooterEncoder.getDistance(), Rotations))
+                .angularVelocity(
+                    m_velocity.mut_replace(m_shooterEncoder.getRate(), RotationsPerSecond));
+          },
+          // Tell SysId to make generated commands require this subsystem, suffix test state in
+          // WPILog with this subsystem's name ("shooter")
+          this));
   // PID controller to run the shooter wheel in closed-loop, set the constants equal to those
   // calculated by SysId
   private final PIDController m_shooterFeedback = new PIDController(1, 0, 0);
   // Feedforward controller to run the shooter wheel in closed-loop, set the constants equal to
   // those calculated by SysId
   private final SimpleMotorFeedforward m_shooterFeedforward =
-      new SimpleMotorFeedforward(
-          0.05,
-          12/5000,
-          0);
+      new SimpleMotorFeedforward(0.05, 12 / 5000, 0);
 
   /** Creates a new Shooter subsystem. */
   public Shooter() {
     // Sets the distance per pulse for the encoders
-    m_shooterEncoder.setDistancePerPulse(1/4096);
+    m_shooterEncoder.setDistancePerPulse(1 / 4096);
   }
 
   /**
@@ -97,11 +92,10 @@ public class Shooter extends SubsystemBase {
                   + m_shooterFeedforward.calculate(shooterSpeed.getAsDouble()));
           m_feederMotor.set(0.7);
         })
-        .finallyDo(
-            () -> {
-              m_shooterMotor.stopMotor();
-              m_feederMotor.stopMotor();
-            })
+        .finallyDo(() -> {
+          m_shooterMotor.stopMotor();
+          m_feederMotor.stopMotor();
+        })
         .withName("runShooter");
   }
 

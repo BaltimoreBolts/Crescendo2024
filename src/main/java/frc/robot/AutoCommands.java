@@ -1,15 +1,10 @@
 package frc.robot;
 
+import static edu.wpi.first.wpilibj2.command.Commands.*;
+
+import com.pathplanner.lib.commands.*;
 import com.pathplanner.lib.path.*;
 import com.pathplanner.lib.pathfinding.*;
-import com.pathplanner.lib.commands.*;
-
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import static edu.wpi.first.wpilibj2.command.Commands.*;
-import frc.robot.subsystems.Swerve;
 
 // /**
 //  * This class generates auto commands.
@@ -43,7 +38,7 @@ import frc.robot.subsystems.Swerve;
   //     Constants.kAuto.MAX_ACCEL_METERS_PER_SECOND_SQUARED);
 
   //   return sequence(
-      
+
   //     run(() -> {
   //       if (isFirstPath) {
   //         //swerve.resetOdometry(traj.getInitialHolonomicPose());

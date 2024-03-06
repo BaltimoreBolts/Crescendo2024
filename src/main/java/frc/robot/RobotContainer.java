@@ -1,7 +1,6 @@
 package frc.robot;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -14,7 +13,6 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Hangers;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Swerve;
-
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -35,7 +33,6 @@ public class RobotContainer {
 
   public final Arm m_arm = new Arm();
 
-
   // public final AutoCommands auto;
 
   public RobotContainer() {
@@ -44,8 +41,6 @@ public class RobotContainer {
     swerve = new Swerve();
     intake = new Intake();
     intakeCommands = new IntakeCommands();
-
-    
 
     SmartDashboard.putNumber("drive/speed", 0.0);
     SmartDashboard.putNumber("drive/velocity(RPM)", 0.0);
@@ -59,18 +54,20 @@ public class RobotContainer {
     configureButtonBindings();
   }
 
-
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   * instantiating a {@link GenericHID} or one of its subclasses
+   * ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a
+   * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
     // swerve.setDefaultCommand(swerve.drive(
-    //   () -> -Constants.kControls.X_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)),
-    //   () -> -Constants.kControls.Y_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS)), 
-    //   () -> -Constants.kControls.THETA_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.ROTATION_AXIS)),
+    //   () ->
+    // -Constants.kControls.X_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)),
+    //   () ->
+    // -Constants.kControls.Y_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS)),
+    //   () ->
+    // -Constants.kControls.THETA_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.ROTATION_AXIS)),
     //   true,
     //   true
     // ));
@@ -84,25 +81,28 @@ public class RobotContainer {
     driver.x().onTrue(intakeCommands.intakeNoteTime(intake));
     driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
 
-    driver.a().onTrue(m_hangers.setPowerCommand(() -> -driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)*12));
+    driver
+        .a()
+        .onTrue(m_hangers.setPowerCommand(
+            () -> -driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS) * 12));
     driver.a().onFalse(m_hangers.setPowerCommand(() -> 0.0));
 
-    //test this
+    // test this
 
     driver.b().onTrue(intakeCommands.amazingIntaking(intake));
-    //and this
+    // and this
     driver.rightBumper().onTrue(intakeCommands.amazingIntaking3(intake));
   }
 
-    /**
+  /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
     String autoName = "Auto1";
-    Command resetOdometry = new InstantCommand(() -> 
-        swerve.resetOdometry(PathPlannerAuto.getStaringPoseFromAutoFile(autoName)));
+    Command resetOdometry = new InstantCommand(
+        () -> swerve.resetOdometry(PathPlannerAuto.getStaringPoseFromAutoFile(autoName)));
     return resetOdometry.andThen(new PathPlannerAuto(autoName));
   }
 }

@@ -1,6 +1,13 @@
 plugins {
     id "java"
+    id "com.diffplug.spotless" version "6.25.0"
     id "edu.wpi.first.GradleRIO" version "2024.3.1"
+}
+
+repositories {
+    maven {
+        url "https://growingstems.org/maven"
+    }
 }
 
 java {
@@ -9,6 +16,34 @@ java {
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
+
+tasks.register("writeGitInfo") {
+    // Define an output stream to write to instead of terminal
+   def stdout = new ByteArrayOutputStream()
+
+   // Execute the git command
+   exec {
+      commandLine "git", "rev-parse", "--abbrev-ref", "HEAD"
+
+      // Write to the output stream instead of terminal
+      standardOutput = stdout
+   }
+
+   exec {
+       commandLine "git", "rev-parse", "--short", "HEAD"
+
+       standardOutput = stdout
+   }
+
+   def branch = stdout.toString().trim()
+   // Create a new file
+   new File(
+      // Join project directory and deploy directory
+      projectDir.toString() + "/src/main/deploy",
+      // File name to write to
+      "commitInfo.txt"
+   ).text = branch // Set the contents of the file to the variable branch
+}
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
@@ -33,6 +68,8 @@ deploy {
                 frcStaticFileDeploy(getArtifactTypeClass('FileTreeArtifact')) {
                     files = project.fileTree('src/main/deploy')
                     directory = '/home/lvuser/deploy'
+
+                    deploy.targets.roborio.artifacts.frcStaticFileDeploy.dependsOn(writeGitInfo)
                 }
             }
         }
@@ -67,11 +104,17 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
+    implementation 'org.growingstems:gstems-common:1.4.2.0-RC1'
+    implementation 'com.google.code.gson:gson:2.9.1'
 }
 
 test {
+    testLogging {
+        showStandardStreams = true
+    }
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
 }
@@ -98,4 +141,20 @@ wpi.java.configureTestTasks(test)
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
+}
+
+spotless {
+    java {
+        target fileTree('.') {
+            include '**/*.java'
+            exclude '**/build/**', '**/build-*/**'
+        }
+        toggleOffOn()
+        palantirJavaFormat('2.40.0').style("GOOGLE").formatJavadoc(true)
+        indentWithTabs(2)
+        indentWithSpaces(2)
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
