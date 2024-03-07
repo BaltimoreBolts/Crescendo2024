@@ -1,7 +1,5 @@
 package frc.robot;
 
-import org.growingstems.measurements.Measurements.Voltage;
-
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -15,6 +13,9 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Hangers;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Swerve;
+
+import org.growingstems.measurements.Angle;
+import org.growingstems.measurements.Measurements.Voltage;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -94,8 +95,12 @@ public class RobotContainer {
             () -> -driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS) * 12));
     driver.a().onFalse(m_hangers.setPowerCommand(() -> 0.0));
 
-    driver.b().onTrue(m_arm.setPowerCommand(() -> Voltage.volts(1.0).mul(-driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS))));
+    driver.b().onTrue(m_arm.setPowerCommand(() -> Voltage.volts(2.0)
+        .mul(-driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS))));
     driver.b().onFalse(m_arm.emergencyStopCommand());
+
+    driver.rightBumper().onTrue(m_arm.setPositionCommand(() -> Angle.degrees(SmartDashboard.getNumber("set arm Pos", 0.0))));
+    driver.rightBumper().onFalse(m_arm.emergencyStopCommand());
 
     // test this
 
