@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * project.
  */
 public class Robot extends TimedRobot {
-  private RobotContainer robotContainer;
+  private RobotContainer m_robotContainer;
   private Joystick m_joystick = new Joystick(0);
 
   /**
@@ -26,7 +26,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    robotContainer = new RobotContainer();
+    m_robotContainer = new RobotContainer();
 
     DataLogManager.start();
   }
@@ -44,6 +44,7 @@ public class Robot extends TimedRobot {
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
+    m_robotContainer.update();
     CommandScheduler.getInstance().run();
   }
 
@@ -59,7 +60,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    Command autoCommand = robotContainer.getAutonomousCommand();
+    Command autoCommand = m_robotContainer.getAutonomousCommand();
     if (autoCommand != null) {
       autoCommand.schedule();
     }

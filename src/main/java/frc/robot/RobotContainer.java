@@ -1,5 +1,7 @@
 package frc.robot;
 
+import org.growingstems.measurements.Measurements.Voltage;
+
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -54,6 +56,11 @@ public class RobotContainer {
     configureButtonBindings();
   }
 
+  public void update() {
+    var joystickPos = -driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS);
+    SmartDashboard.putNumber("Joystick Pos", joystickPos);
+  }
+
   /**
    * Use this method to define your button->command mappings. Buttons can be created by
    * instantiating a {@link GenericHID} or one of its subclasses
@@ -87,11 +94,14 @@ public class RobotContainer {
             () -> -driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS) * 12));
     driver.a().onFalse(m_hangers.setPowerCommand(() -> 0.0));
 
+    driver.b().onTrue(m_arm.setPowerCommand(() -> Voltage.volts(1.0).mul(-driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS))));
+    driver.b().onFalse(m_arm.emergencyStopCommand());
+
     // test this
 
-    driver.b().onTrue(intakeCommands.amazingIntaking(intake));
+    // driver.b().onTrue(intakeCommands.amazingIntaking(intake));
     // and this
-    driver.rightBumper().onTrue(intakeCommands.amazingIntaking3(intake));
+    // driver.rightBumper().onTrue(intakeCommands.amazingIntaking3(intake));
   }
 
   /**

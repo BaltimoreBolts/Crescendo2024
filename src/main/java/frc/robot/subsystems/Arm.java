@@ -3,15 +3,19 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
+
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import java.util.function.Supplier;
 
 import org.growingstems.measurements.Angle;
+import org.growingstems.measurements.Measurements.Voltage;
 
 public class Arm extends SubsystemBase {
 
@@ -26,7 +30,7 @@ public class Arm extends SubsystemBase {
   private static final Angle k_fwdHardStop = Angle.degrees(-43.8);
 
   private static final Angle m_absOffset = Angle.degrees(-2.0);
-  private final Angle m_relOffset;
+  private Angle m_relOffset = Angle.ZERO;
 
   private static final double k_sensorRatio = 16.0 / 32.0;
 
@@ -37,10 +41,10 @@ public class Arm extends SubsystemBase {
     m_LeftArmMotor.restoreFactoryDefaults();
     m_RightArmMotor.restoreFactoryDefaults();
 
-    m_LeftArmMotor.follow(m_RightArmMotor);
+    m_LeftArmMotor.follow(m_RightArmMotor, true);
 
-    m_LeftArmMotor.setInverted(true);
-    m_RightArmMotor.setInverted(false);
+    m_LeftArmMotor.setIdleMode(IdleMode.kBrake);
+    m_RightArmMotor.setIdleMode(IdleMode.kBrake);
 
     // m_RightArmEncoder = m_RightArmMotor.getEncoder();
     // m_LeftArmEncoder = m_LeftArmMotor.getEncoder();
@@ -50,7 +54,7 @@ public class Arm extends SubsystemBase {
 
     m_AbsEncoder.setDutyCycleRange(1.0 / 1025.0, 1024.0 / 1025.0);
 
-    m_relOffset = getAbsPos().sub(getRawRelPos());
+    new WaitCommand(0.5).andThen(this::findRelativeOffset).ignoringDisable(true).schedule();
   }
 
   @Override
@@ -60,6 +64,10 @@ public class Arm extends SubsystemBase {
     SmartDashboard.putNumber("getRawRelPos", getRawRelPos().asDegrees());
     SmartDashboard.putNumber("getRelPos()", getRelPos().asDegrees());
     SmartDashboard.putNumber("m_relOffset()", m_relOffset.asDegrees());
+  }
+
+  private void findRelativeOffset() {
+    m_relOffset = getAbsPos().sub(getRawRelPos());
   }
 
   private Angle getRawAbsPos() {
@@ -78,14 +86,22 @@ public class Arm extends SubsystemBase {
     return getRawRelPos().add(m_relOffset);
   }
 
-  private void setPower(double Voltage) {
-      m_RightArmMotor.setVoltage(Voltage);
+  private void setPower(Voltage voltage) {
+      m_RightArmMotor.setVoltage(voltage.asVolts());
   }
 
-  public Command setPowerCommand(Supplier<Double> voltage) {
+  public Command setPowerCommand(Supplier<Voltage> voltage) {
     return new RunCommand(
         () -> {
           setPower(voltage.get());
+        },
+        this);
+  }
+
+  public Command emergencyStopCommand() {
+    return new RunCommand(
+        () -> {
+          m_RightArmMotor.stopMotor();
         },
         this);
   }
