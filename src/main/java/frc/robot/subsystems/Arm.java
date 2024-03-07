@@ -22,6 +22,7 @@ import org.growingstems.measurements.Angle;
 import org.growingstems.measurements.Measurements.AngularAcceleration;
 import org.growingstems.measurements.Measurements.AngularVelocity;
 import org.growingstems.measurements.Measurements.Voltage;
+import org.growingstems.measurements.Measurements.VoltagePerFrequency;
 import org.growingstems.util.timer.Timer;
 
 public class Arm extends SubsystemBase {
@@ -32,6 +33,9 @@ public class Arm extends SubsystemBase {
   private final SparkPIDController m_positionController;
 
   private static final Voltage k_gravityCompensation = Voltage.volts(0.5);
+  /** Voltage per Frequency (Voltage per AngularVelocity) */
+  private static final VoltagePerFrequency k_velocityCompensation =
+      Voltage.volts(0.0).div(AngularVelocity.ZERO);
 
   private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-290.3);
   private static final Angle k_forwardRawAbsoluteHardStop_SU = Angle.degrees(-21.9 * 4.0);
@@ -76,7 +80,7 @@ public class Arm extends SubsystemBase {
     m_positionController.setFeedbackDevice(m_RelativeEncoder);
     m_positionController.setP(5.0);
 
-    SmartDashboard.putNumber("set arm Pos", 0.0);
+    SmartDashboard.putNumber("arm/set arm Pos", 0.0);
 
     new WaitCommand(0.5)
         .andThen(this::calculateRelativeOffset)
@@ -95,24 +99,29 @@ public class Arm extends SubsystemBase {
 
       var state = m_trajectoryContoller.calculate(
           m_trajectoryTimer.get().asSeconds(), getCurrentState(), getGoalState());
+
       var trajectoryPos = Angle.radians(state.position);
-      setPosition(trajectoryPos);
-      SmartDashboard.putNumber("trajectory position", trajectoryPos.asDegrees());
+      var trajectoryVel = AngularVelocity.radiansPerSecond(state.velocity);
+
+      setPosition(trajectoryPos, trajectoryVel);
+      
+      SmartDashboard.putNumber("arm/trajectory position", trajectoryPos.asDegrees());
+      SmartDashboard.putNumber("arm/trajectory velocity", trajectoryVel.asDegreesPerSecond());
     }
 
     SmartDashboard.putBoolean("use trajectory", m_runPositionControl);
 
-    SmartDashboard.putNumber("getRawAbsPos", getRawAbsolutePosition_SU().asDegrees());
-    SmartDashboard.putNumber("getAbsPos", getAbsolutePosition().asDegrees());
-    SmartDashboard.putNumber("getRawRelPos", getRawRelativePosition_SU().asDegrees());
-    SmartDashboard.putNumber("getRelPos()", getRelativePosition().asDegrees());
-    SmartDashboard.putNumber("m_relOffset()", m_relOffset.asDegrees());
+    SmartDashboard.putNumber("arm/getRawAbsPos", getRawAbsolutePosition_SU().asDegrees());
+    SmartDashboard.putNumber("arm/getAbsPos", getAbsolutePosition().asDegrees());
+    SmartDashboard.putNumber("arm/getRawRelPos", getRawRelativePosition_SU().asDegrees());
+    SmartDashboard.putNumber("arm/getRelPos()", getRelativePosition().asDegrees());
+    SmartDashboard.putNumber("arm/m_relOffset()", m_relOffset.asDegrees());
 
     var rawPos = angleToSensorUnits(Angle.degrees(SmartDashboard.getNumber("set arm Pos", 0.0)));
-    SmartDashboard.putNumber("set raw position", rawPos.asDegrees());
-    SmartDashboard.putNumber("goal position", m_angleGoal.asDegrees());
+    SmartDashboard.putNumber("arm/set raw position", rawPos.asDegrees());
+    SmartDashboard.putNumber("arm/goal position", m_angleGoal.asDegrees());
 
-    SmartDashboard.putNumber("output power", m_LeftArmMasterMotor.getAppliedOutput());
+    SmartDashboard.putNumber("arm/output power", m_LeftArmMasterMotor.getAppliedOutput());
   }
 
   private State getCurrentState() {
@@ -162,12 +171,14 @@ public class Arm extends SubsystemBase {
     m_LeftArmMasterMotor.setVoltage(voltage.add(getCurrentGravityCompensation()).asVolts());
   }
 
-  private void setPosition(Angle position) {
+  private void setPosition(Angle position, AngularVelocity velocity) {
     m_positionController.setReference(
         angleToSensorUnits(position).asRotations(),
         ControlType.kPosition,
         0,
-        getCurrentGravityCompensation().asVolts());
+        getCurrentGravityCompensation()
+            .add(k_velocityCompensation.mul(velocity))
+            .asVolts());
   }
 
   public Command setPositionCommand(Supplier<Angle> position) {
