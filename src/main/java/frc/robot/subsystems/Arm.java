@@ -18,11 +18,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.library.WpiTimeSource;
 import java.util.function.Supplier;
+
+import org.growingstems.logic.LogicCore.Edge;
 import org.growingstems.measurements.Angle;
 import org.growingstems.measurements.Measurements.AngularAcceleration;
 import org.growingstems.measurements.Measurements.AngularVelocity;
 import org.growingstems.measurements.Measurements.Voltage;
 import org.growingstems.measurements.Measurements.VoltagePerFrequency;
+import org.growingstems.signals.EdgeDetector;
 import org.growingstems.util.timer.Timer;
 
 public class Arm extends SubsystemBase {
@@ -52,8 +55,9 @@ public class Arm extends SubsystemBase {
 
   private final Timer m_trajectoryTimer = new WpiTimeSource().createTimer();
   private Angle m_angleGoal = Angle.ZERO;
+  private Angle m_angleSetpoint = Angle.ZERO;
   private boolean m_runPositionControl = false;
-  private boolean m_goalChanged = false;
+  private EdgeDetector m_startPositionControl = new EdgeDetector(Edge.RISING);
 
   private final TrapezoidProfile m_trajectoryContoller = new TrapezoidProfile(new Constraints(
       k_cruiseVelocity.asRadiansPerSecond(), k_acceleration.asRadiansPerSecondSquared()));
@@ -92,19 +96,16 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
+    var startedPositionControl = m_startPositionControl.update(m_runPositionControl);
     if (m_runPositionControl) {
-      if (m_goalChanged) {
-        m_trajectoryTimer.reset();
-      }
-
       var state = m_trajectoryContoller.calculate(
-          m_trajectoryTimer.get().asSeconds(), getCurrentState(), getGoalState());
+          m_trajectoryTimer.get().asSeconds(), getCurrentState(startedPositionControl), getGoalState());
 
       var trajectoryPos = Angle.radians(state.position);
       var trajectoryVel = AngularVelocity.radiansPerSecond(state.velocity);
 
       setPosition(trajectoryPos, trajectoryVel);
-      
+
       SmartDashboard.putNumber("arm/trajectory position", trajectoryPos.asDegrees());
       SmartDashboard.putNumber("arm/trajectory velocity", trajectoryVel.asDegreesPerSecond());
     }
@@ -124,9 +125,13 @@ public class Arm extends SubsystemBase {
     SmartDashboard.putNumber("arm/output power", m_LeftArmMasterMotor.getAppliedOutput());
   }
 
-  private State getCurrentState() {
+  private State getCurrentState(boolean reset) {
+    if (reset) {
+      m_angleSetpoint = getRelativePosition();
+    }
+
     return new State(
-        getRelativePosition().asRadians(),
+        m_angleSetpoint.asRadians(),
         AngularVelocity.revolutionsPerMinute(m_RelativeEncoder.getVelocity()).asRadiansPerSecond());
   }
 
@@ -184,17 +189,10 @@ public class Arm extends SubsystemBase {
   public Command setPositionCommand(Supplier<Angle> position) {
     return new InstantCommand(() -> {
           m_runPositionControl = true;
-          m_goalChanged = true;
         })
         .andThen(new RunCommand(
             () -> {
-              var requestedPosition = position.get();
-
-              if (requestedPosition.sub(m_angleGoal).abs().lt(Angle.degrees(0.01))) {
-                m_goalChanged = true;
-              }
-
-              m_angleGoal = requestedPosition;
+              m_angleGoal = position.get();
             },
             this))
         .finallyDo(() -> m_runPositionControl = false);
