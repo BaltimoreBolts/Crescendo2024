@@ -13,7 +13,6 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Hangers;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Swerve;
-
 import org.growingstems.measurements.Angle;
 import org.growingstems.measurements.Measurements.Voltage;
 
@@ -99,7 +98,10 @@ public class RobotContainer {
         .mul(-driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS))));
     driver.b().onFalse(m_arm.emergencyStopCommand());
 
-    driver.rightBumper().onTrue(m_arm.setPositionCommand(() -> Angle.degrees(SmartDashboard.getNumber("set arm Pos", 0.0))));
+    driver
+        .rightBumper()
+        .onTrue(m_arm.setPositionCommand(
+            () -> Angle.degrees(SmartDashboard.getNumber("set arm Pos", 0.0))));
     driver.rightBumper().onFalse(m_arm.emergencyStopCommand());
 
     // test this
