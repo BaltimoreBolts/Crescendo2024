@@ -33,7 +33,6 @@ public class RobotContainer {
 
   public final Hangers m_hangers = new Hangers();
 
-
   public final Arm m_arm = new Arm();
 
   // public final AutoCommands auto;
