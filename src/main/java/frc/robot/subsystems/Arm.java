@@ -38,7 +38,7 @@ public class Arm extends SubsystemBase {
   private static final VoltagePerFrequency k_velocityCompensation =
       Voltage.volts(0.0).div(AngularVelocity.ZERO);
 
-  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-290.3);
+  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-291.3);
   private static final Angle k_forwardRawAbsoluteHardStop_SU = Angle.degrees(-21.9 * 4.0);
 
   private static final Angle k_reverseAbsoluteHardStop = Angle.degrees(-2.0);
@@ -49,7 +49,7 @@ public class Arm extends SubsystemBase {
 
   private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(10.0);
   private static final AngularAcceleration k_acceleration =
-      AngularAcceleration.degreesPerSecondSquared(10.0);
+      AngularAcceleration.degreesPerSecondSquared(2.5);
 
   private final Timer m_trajectoryTimer = new WpiTimeSource().createTimer();
   private Angle m_angleGoal = Angle.ZERO;
@@ -80,7 +80,7 @@ public class Arm extends SubsystemBase {
 
     m_positionController = m_LeftArmMasterMotor.getPIDController();
     m_positionController.setFeedbackDevice(m_RelativeEncoder);
-    m_positionController.setP(5.0);
+    m_positionController.setP(2);
 
     SmartDashboard.putNumber("arm/set arm Pos", 0.0);
 

@@ -94,14 +94,14 @@ public class RobotContainer {
     driver
         .rightBumper()
         .onTrue(m_arm.setPositionCommand(
-            () -> Angle.degrees(SmartDashboard.getNumber("set arm Pos", 0.0))));
+            () -> Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0))));
     driver.rightBumper().onFalse(m_arm.emergencyStopCommand());
 
     // test this
 
-    // driver.x().onTrue(intake.intakeSlowCommand());
+    driver.x().onTrue(intakeCommands.intakeNoteStop(intake));
+    driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
     // driver.x().onTrue(intakeCommands.intakeNoteTime(intake));
-    // driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
     // driver.b().onTrue(intake.intakeMediumCommand());
     // driver.a().onTrue(intake.intakeFastCommand());
 
