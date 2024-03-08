@@ -33,6 +33,7 @@ public class RobotContainer {
 
   public final Hangers m_hangers = new Hangers();
 
+
   public final Arm m_arm = new Arm();
 
   // public final AutoCommands auto;
@@ -81,13 +82,6 @@ public class RobotContainer {
 
     driver.y().onTrue(new InstantCommand(() -> swerve.resetOdometry(new Pose2d())));
 
-    // driver.x().onTrue(intake.intakeSlowCommand());
-    // driver.b().onTrue(intake.intakeMediumCommand());
-    // driver.a().onTrue(intake.intakeFastCommand());
-
-    driver.x().onTrue(intakeCommands.intakeNoteTime(intake));
-    driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
-
     driver
         .a()
         .onTrue(m_hangers.setPowerCommand(
@@ -105,6 +99,12 @@ public class RobotContainer {
     driver.rightBumper().onFalse(m_arm.emergencyStopCommand());
 
     // test this
+
+    // driver.x().onTrue(intake.intakeSlowCommand());
+    // driver.x().onTrue(intakeCommands.intakeNoteTime(intake));
+    // driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
+    // driver.b().onTrue(intake.intakeMediumCommand());
+    // driver.a().onTrue(intake.intakeFastCommand());
 
     // driver.b().onTrue(intakeCommands.amazingIntaking(intake));
     // and this

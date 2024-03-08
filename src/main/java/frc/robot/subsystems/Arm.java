@@ -123,6 +123,9 @@ public class Arm extends SubsystemBase {
     SmartDashboard.putNumber("arm/goal position", m_angleGoal.asDegrees());
 
     SmartDashboard.putNumber("arm/output power", m_LeftArmMasterMotor.getAppliedOutput());
+
+    SmartDashboard.putNumber("arm/angle Setpoint", m_angleSetpoint.asDegrees());
+    SmartDashboard.putBoolean("Nick's Test", startedPositionControl);
   }
 
   private State getCurrentState(boolean reset) {
