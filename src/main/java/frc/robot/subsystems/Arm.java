@@ -96,10 +96,9 @@ public class Arm extends SubsystemBase {
   public void periodic() {
     var startedPositionControl = m_startPositionControl.update(m_runPositionControl);
     if (m_runPositionControl) {
+      var currentState = getCurrentState(startedPositionControl);
       m_trajectorySetpoint = m_trajectoryContoller.calculate(
-          m_trajectoryTimer.get().asSeconds(),
-          getCurrentState(startedPositionControl),
-          getGoalState());
+          m_trajectoryTimer.get().asSeconds(), currentState, getGoalState());
 
       var trajectoryPos = Angle.radians(m_trajectorySetpoint.position);
       var trajectoryVel = AngularVelocity.radiansPerSecond(m_trajectorySetpoint.velocity);
