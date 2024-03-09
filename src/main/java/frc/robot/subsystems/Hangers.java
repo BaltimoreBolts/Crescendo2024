@@ -36,6 +36,9 @@ public class Hangers extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putBoolean("Left Hall", getLeftLimit());
     SmartDashboard.putBoolean("Right Hall", getRightLimit());
+
+    SmartDashboard.putNumber("Left Enc", m_leftHangerEncoder.getPosition());
+    SmartDashboard.putNumber("Right Enc", m_rightHangerEncoder.getPosition());
   }
 
   //   private void spinLeftUp(){
@@ -57,6 +60,20 @@ public class Hangers extends SubsystemBase {
 
   private boolean getRightLimit() {
     return !m_Righthall.get();
+  }
+
+  public void resetEncs() {
+    m_leftHangerEncoder.setPosition(0); //79
+    m_rightHangerEncoder.setPosition(0); //74
+  }
+
+  public Command hangToTop() {
+    return setPowerCommand(() -> 5.0);
+  }
+
+  public Command hangToTopStop(){
+    return hangToTop().until(() -> m_leftHangerEncoder.getPosition() > 75)
+    .andThen(setPowerCommand(() -> 0.0));
   }
 
   private void setPower(double leftVoltage, double rightVoltage) {

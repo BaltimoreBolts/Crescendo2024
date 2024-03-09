@@ -39,7 +39,7 @@ public class Intake extends SubsystemBase {
     noteAtShooter = new DigitalInput(1);
   }
 
-  final double intakeFastSpeed = 0.5;
+  final double intakeFastSpeed = 0.55;
   final double intakeMediumSpeed = 0.4;
 
   final double intakeSlowSpeed = 0.05;

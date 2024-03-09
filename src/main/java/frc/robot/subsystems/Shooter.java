@@ -54,7 +54,8 @@ public class Shooter extends SubsystemBase {
   }
 
   public void shooterAtSpeed() {
-    this.power = SmartDashboard.getNumber("shooter/Speed", 0.0);
+    this.power = 0.6;
+    //this.power = SmartDashboard.getNumber("shooter/Speed", 0.0);
   }
 
 }

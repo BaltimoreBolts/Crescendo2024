@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.IntakeCommands;
@@ -73,16 +74,16 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    swerve.setDefaultCommand(swerve.drive(
-      () ->
-    -Constants.kControls.X_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)),
-      () ->
-    -Constants.kControls.Y_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS)),
-      () ->
-    -Constants.kControls.THETA_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.ROTATION_AXIS)),
-      true,
-      true
-    ));
+    // swerve.setDefaultCommand(swerve.drive(
+    //   () ->
+    // -Constants.kControls.X_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)),
+    //   () ->
+    // -Constants.kControls.Y_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS)),
+    //   () ->
+    // -Constants.kControls.THETA_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.ROTATION_AXIS)),
+    //   true,
+    //   true
+    // ));
 
     driver.y().onTrue(new InstantCommand(() -> swerve.resetOdometry(new Pose2d())));
 
@@ -90,8 +91,12 @@ public class RobotContainer {
     // driver
     //     .a()
     //     .onTrue(m_hangers.setPowerCommand(
-    //         () -> -driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS) * 12));
+    //         () -> -driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS) * 4));
     // driver.a().onFalse(m_hangers.setPowerCommand(() -> 0.0));
+
+    // driver.b().onTrue(new InstantCommand(() -> m_hangers.resetEncs()));
+
+    // driver.x().onTrue(m_hangers.hangToTopStop());
 
     // ARM
     // driver.b().onTrue(m_arm.setPowerCommand(() -> Voltage.volts(2.0)
@@ -106,19 +111,15 @@ public class RobotContainer {
 
     // test this
 
-    // driver.x().onTrue(intakeCommands.intakeNoteStop(intake));
     driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
-    driver.x().onTrue(intakeCommands.intakeNoteToBottom(intake).andThen(intake.intakeOffCommand()).andThen(intake.outtakeCommand()));
-    // driver.b().onTrue(intake.intakeMediumCommand());
-    // driver.a().onTrue(intake.intakeFastCommand());
 
-    driver.b().onTrue(intakeCommands.amazingIntaking3(intake).andThen(new WaitCommand(0.5)).andThen(intake.intakeOffCommand()));
+    // INTAKE AND SHOOT
+    // driver.a().onTrue(intake.intakeOffCommand());
+    // driver.rightBumper().onTrue(intakeCommands.amazingIntaking3(intake).andThen(new WaitCommand(0.5)).andThen(intake.intakeOffCommand()));
+    // driver.x().onTrue(m_shooter.shooterSpin().andThen(new WaitCommand(1.5))
+    // .andThen(intake.intakeFastCommand()).andThen(new WaitCommand(2))
+    // .andThen(m_shooter.shooterOffCommand()).andThen(intake.intakeOffCommand()));
 
-    // driver.b().onTrue(m_shooter.shooterSpin().alongWith(intake.intakeMediumCommand()));
-    // driver.a().onTrue(m_shooter.shooterOffCommand().alongWith(intake.intakeOffCommand()));
-
-    // and this
-    // driver.rightBumper().onTrue(intakeCommands.amazingIntaking3(intake));
   }
 
   /**

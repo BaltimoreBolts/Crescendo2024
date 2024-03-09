@@ -38,7 +38,7 @@ public class Arm extends SubsystemBase {
   private static final VoltagePerFrequency k_velocityCompensation =
       Voltage.volts(0.0).div(AngularVelocity.ZERO);
 
-  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-291.3);
+  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-265.2);
   private static final Angle k_forwardRawAbsoluteHardStop_SU = Angle.degrees(-21.9 * 4.0);
 
   private static final Angle k_reverseAbsoluteHardStop = Angle.degrees(-2.0);
