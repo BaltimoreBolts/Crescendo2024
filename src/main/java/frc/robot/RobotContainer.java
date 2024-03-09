@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.Arm;
@@ -38,9 +39,6 @@ public class RobotContainer {
   public final Shooter m_shooter = new Shooter();
 
   public final Arm m_arm = new Arm();
-
-  private final Command m_spinUpShooter = Commands.runOnce(m_shooter::enable, m_shooter);
-  private final Command m_stopShooter = Commands.runOnce(m_shooter::disable, m_shooter);
 
   // public final AutoCommands auto;
 
@@ -109,15 +107,15 @@ public class RobotContainer {
     // test this
 
     // driver.x().onTrue(intakeCommands.intakeNoteStop(intake));
-    // driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
-    // driver.x().onTrue(intakeCommands.intakeNoteTime(intake));
+    driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
+    driver.x().onTrue(intakeCommands.intakeNoteToBottom(intake).andThen(intake.intakeOffCommand()).andThen(intake.outtakeCommand()));
     // driver.b().onTrue(intake.intakeMediumCommand());
     // driver.a().onTrue(intake.intakeFastCommand());
 
-    // driver.b().onTrue(intakeCommands.amazingIntaking3(intake));
+    driver.b().onTrue(intakeCommands.amazingIntaking3(intake).andThen(new WaitCommand(0.5)).andThen(intake.intakeOffCommand()));
 
-    driver.x().onTrue(m_spinUpShooter);
-    driver.b().onTrue(m_stopShooter);
+    // driver.b().onTrue(m_shooter.shooterSpin().alongWith(intake.intakeMediumCommand()));
+    // driver.a().onTrue(m_shooter.shooterOffCommand().alongWith(intake.intakeOffCommand()));
 
     // and this
     // driver.rightBumper().onTrue(intakeCommands.amazingIntaking3(intake));

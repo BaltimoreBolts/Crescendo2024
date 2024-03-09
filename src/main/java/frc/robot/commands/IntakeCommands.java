@@ -46,10 +46,7 @@ public class IntakeCommands extends SequentialCommandGroup {
         .andThen(intake.intakeOffCommand()));
   }
 
-  // new idea created 2/29/2024 at 11:15 PM
-  // timeout at end is just a percausion
-  // in theory the command should pull the note in quickly and then push it outwards until it gets
-  // to the bottom sensor (when it sees the bottom sensor it will still probably be too high but)
+
   public Command amazingIntaking(Intake intake) {
     return (intakeNoteTime(intake)
             .until(intake.seeShooterSupplier())
@@ -59,17 +56,10 @@ public class IntakeCommands extends SequentialCommandGroup {
         .withTimeout(10);
   }
 
-  // may be good assuming the note fully goes past top sensor on way in
-  // outaking fast to get the note further down while robot is reacting
-  public Command amazingIntaking2(Intake intake) {
-    return (intakeNoteToBottom(intake).andThen(null))
-        .withTimeout(10);
-  }
 
   public Command amazingIntaking3(Intake intake) {
     return (intakeNoteToBottom(intake)
-            .andThen(intakeNoteStop(intake))
-            .andThen(intake.intakeOffCommand()))
+            .andThen(intake.outtakeCommand()))
         .withTimeout(10);
   }
 }

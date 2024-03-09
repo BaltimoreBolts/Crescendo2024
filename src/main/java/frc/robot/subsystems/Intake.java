@@ -44,7 +44,7 @@ public class Intake extends SubsystemBase {
 
   final double intakeSlowSpeed = 0.05;
 
-  final double outakeSpeed = 0.3;
+  final double outakeSpeed = 0.08;
   final double outakeFastSpeed = 0.5;
 
   @Override
@@ -91,6 +91,15 @@ public class Intake extends SubsystemBase {
   public BooleanSupplier seeIntakeSupplier() {
     return noteAtIntake::get;
   }
+
+  public boolean getNotIntake(){
+    return !noteAtIntake.get();
+  }
+
+  public BooleanSupplier invertedSeeIntakeSupplier() {
+    // Define the inverted supplier inline
+    return () -> !noteAtIntake.get();
+}
 
   public void intakeOff() {
     this.power = 0;
