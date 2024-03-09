@@ -196,7 +196,13 @@ public class Arm extends SubsystemBase {
         })
         .andThen(new RunCommand(
             () -> {
+              if (position.get().asDegrees() < -2) {
+                m_angleGoal = Angle.degrees(-2.0);
+              } else if (position.get().asDegrees() > 105) {
+                m_angleGoal = Angle.degrees(105);
+              } else {
               m_angleGoal = position.get();
+              }
             },
             this))
         .finallyDo(() -> m_runPositionControl = false);
