@@ -20,17 +20,23 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.function.DoubleSupplier;
 
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+
 public class Shooter extends SubsystemBase {
   // The motor on the shooter wheel .
-  private final PWMSparkMax m_shooterMotor = new PWMSparkMax(15);
-  private final PWMSparkMax m_shooterMotor2 = new PWMSparkMax(16);
+  private final CANSparkMax m_shooterMotor = new CANSparkMax(15, MotorType.kBrushless);
+  private final CANSparkMax m_shooterMotor2 = new CANSparkMax(16, MotorType.kBrushless);
+
 
   // The motor on the feeder wheels.
-  private final PWMSparkMax m_feederMotor = new PWMSparkMax(14);
+  private final CANSparkMax m_feederMotor = new CANSparkMax(14, MotorType.kBrushless);
 
   // The shooter wheel encoder
 
-  private Encoder m_shooterEncoder;
+  private RelativeEncoder m_shooterEncoder;
 
   // Mutable holder for unit-safe voltage values, persisted to avoid reallocation.
   private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
@@ -55,9 +61,9 @@ public class Shooter extends SubsystemBase {
             log.motor("shooter-wheel")
                 .voltage(m_appliedVoltage.mut_replace(
                     m_shooterMotor.get() * RobotController.getBatteryVoltage(), Volts))
-                .angularPosition(m_angle.mut_replace(m_shooterEncoder.getDistance(), Rotations))
+                .angularPosition(m_angle.mut_replace(m_shooterEncoder.getPosition(), Rotations))
                 .angularVelocity(
-                    m_velocity.mut_replace(m_shooterEncoder.getRate(), RotationsPerSecond));
+                    m_velocity.mut_replace(m_shooterEncoder.getVelocity(), RotationsPerSecond));
           },
           // Tell SysId to make generated commands require this subsystem, suffix test state in
           // WPILog with this subsystem's name ("shooter")
@@ -72,8 +78,16 @@ public class Shooter extends SubsystemBase {
 
   /** Creates a new Shooter subsystem. */
   public Shooter() {
-    // Sets the distance per pulse for the encoders
-    m_shooterEncoder.setDistancePerPulse(1 / 4096);
+
+    m_shooterMotor.restoreFactoryDefaults();
+    m_shooterMotor2.restoreFactoryDefaults();
+
+    m_shooterMotor.setInverted(false);
+    m_shooterMotor2.follow(m_shooterMotor, true);
+
+    m_shooterMotor.setIdleMode(IdleMode.kCoast);
+    m_shooterMotor2.setIdleMode(IdleMode.kCoast);
+
   }
 
   /**
@@ -85,15 +99,16 @@ public class Shooter extends SubsystemBase {
     // Run shooter wheel at the desired speed using a PID controller and feedforward.
     return run(() -> {
           m_shooterMotor.setVoltage(
-              m_shooterFeedback.calculate(m_shooterEncoder.getRate(), shooterSpeed.getAsDouble())
+              m_shooterFeedback.calculate(m_shooterEncoder.getVelocity(), shooterSpeed.getAsDouble())
                   + m_shooterFeedforward.calculate(shooterSpeed.getAsDouble()));
           m_shooterMotor2.setVoltage(
-              m_shooterFeedback.calculate(m_shooterEncoder.getRate(), shooterSpeed.getAsDouble())
+              m_shooterFeedback.calculate(m_shooterEncoder.getVelocity(), shooterSpeed.getAsDouble())
                   + m_shooterFeedforward.calculate(shooterSpeed.getAsDouble()));
           m_feederMotor.set(0.7);
         })
         .finallyDo(() -> {
           m_shooterMotor.stopMotor();
+          m_shooterMotor2.stopMotor();
           m_feederMotor.stopMotor();
         })
         .withName("runShooter");

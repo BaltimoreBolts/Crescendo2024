@@ -201,7 +201,7 @@ public class Arm extends SubsystemBase {
               } else if (position.get().asDegrees() > 105) {
                 m_angleGoal = Angle.degrees(105);
               } else {
-              m_angleGoal = position.get();
+                m_angleGoal = position.get();
               }
             },
             this))
