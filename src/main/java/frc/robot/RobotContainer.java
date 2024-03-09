@@ -12,6 +12,7 @@ import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Hangers;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
 import org.growingstems.measurements.Angle;
 import org.growingstems.measurements.Measurements.Voltage;
@@ -32,6 +33,8 @@ public class RobotContainer {
   public final IntakeCommands intakeCommands;
 
   public final Hangers m_hangers = new Hangers();
+
+  public final Shooter m_shooter = new Shooter();
 
   public final Arm m_arm = new Arm();
 
@@ -68,44 +71,48 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // swerve.setDefaultCommand(swerve.drive(
-    //   () ->
-    // -Constants.kControls.X_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)),
-    //   () ->
-    // -Constants.kControls.Y_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS)),
-    //   () ->
-    // -Constants.kControls.THETA_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.ROTATION_AXIS)),
-    //   true,
-    //   true
-    // ));
+    swerve.setDefaultCommand(swerve.drive(
+      () ->
+    -Constants.kControls.X_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)),
+      () ->
+    -Constants.kControls.Y_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS)),
+      () ->
+    -Constants.kControls.THETA_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.ROTATION_AXIS)),
+      true,
+      true
+    ));
 
     driver.y().onTrue(new InstantCommand(() -> swerve.resetOdometry(new Pose2d())));
 
-    driver
-        .a()
-        .onTrue(m_hangers.setPowerCommand(
-            () -> -driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS) * 12));
-    driver.a().onFalse(m_hangers.setPowerCommand(() -> 0.0));
+    // HANGER
+    // driver
+    //     .a()
+    //     .onTrue(m_hangers.setPowerCommand(
+    //         () -> -driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS) * 12));
+    // driver.a().onFalse(m_hangers.setPowerCommand(() -> 0.0));
 
-    driver.b().onTrue(m_arm.setPowerCommand(() -> Voltage.volts(2.0)
-        .mul(-driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS))));
-    driver.b().onFalse(m_arm.emergencyStopCommand());
+    // ARM
+    // driver.b().onTrue(m_arm.setPowerCommand(() -> Voltage.volts(2.0)
+    //     .mul(-driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS))));
+    // driver.b().onFalse(m_arm.emergencyStopCommand());
 
-    driver
-        .rightBumper()
-        .onTrue(m_arm.setPositionCommand(
-            () -> Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0))));
-    driver.rightBumper().onFalse(m_arm.emergencyStopCommand());
+    // driver
+    //     .rightBumper()
+    //     .onTrue(m_arm.setPositionCommand(
+    //         () -> Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0))));
+    // driver.rightBumper().onFalse(m_arm.emergencyStopCommand());
 
     // test this
 
-    driver.x().onTrue(intakeCommands.intakeNoteStop(intake));
-    driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
+    // driver.x().onTrue(intakeCommands.intakeNoteStop(intake));
+    // driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
     // driver.x().onTrue(intakeCommands.intakeNoteTime(intake));
     // driver.b().onTrue(intake.intakeMediumCommand());
     // driver.a().onTrue(intake.intakeFastCommand());
 
-    // driver.b().onTrue(intakeCommands.amazingIntaking(intake));
+    // driver.b().onTrue(intakeCommands.amazingIntaking3(intake));
+
+    driver.x().onTrue(m_shooter.runShooter(SmartDashboard.getNumber("shooter/set Shooter Speed", 0.0)));
     // and this
     // driver.rightBumper().onTrue(intakeCommands.amazingIntaking3(intake));
   }

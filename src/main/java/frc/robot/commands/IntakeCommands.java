@@ -9,7 +9,7 @@ import frc.robot.subsystems.Intake;
 public class IntakeCommands extends SequentialCommandGroup {
 
   public Command intakeNote(Intake intake) {
-    return intake.intakeFastCommand().until(intake.seeShooterSupplier());
+    return intake.intakeFastCommand();
   }
 
   public Command intakeNoteIntake(Intake intake) {
@@ -62,17 +62,13 @@ public class IntakeCommands extends SequentialCommandGroup {
   // may be good assuming the note fully goes past top sensor on way in
   // outaking fast to get the note further down while robot is reacting
   public Command amazingIntaking2(Intake intake) {
-    return (intakeNoteTime(intake)
-            .until(intake.seeShooterSupplier())
-            .andThen(intake.outakeFastCommand())
-            .until(intake.seeShooterSupplier())
-            .andThen(intake.intakeOffCommand()))
+    return (intakeNoteToBottom(intake).andThen(null))
         .withTimeout(10);
   }
 
   public Command amazingIntaking3(Intake intake) {
     return (intakeNoteToBottom(intake)
-            .andThen(intakeNoteSlow(intake))
+            .andThen(intakeNoteStop(intake))
             .andThen(intake.intakeOffCommand()))
         .withTimeout(10);
   }

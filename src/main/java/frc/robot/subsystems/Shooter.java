@@ -12,10 +12,11 @@ import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.Velocity;
 import edu.wpi.first.units.Voltage;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.function.DoubleSupplier;
@@ -79,6 +80,8 @@ public class Shooter extends SubsystemBase {
   /** Creates a new Shooter subsystem. */
   public Shooter() {
 
+    SmartDashboard.putNumber("shooter/set Shooter Speed", 0.0);
+
     m_shooterMotor.restoreFactoryDefaults();
     m_shooterMotor2.restoreFactoryDefaults();
 
@@ -90,6 +93,10 @@ public class Shooter extends SubsystemBase {
 
   }
 
+  @Override
+  public void periodic() {
+    SmartDashboard.putNumber("shooter/Shooter RPM", m_shooterEncoder.getVelocity());
+  }
   /**
    * Returns a command that runs the shooter at a specifc velocity.
    *
@@ -113,6 +120,7 @@ public class Shooter extends SubsystemBase {
         })
         .withName("runShooter");
   }
+
 
   /**
    * Returns a command that will execute a quasistatic test in the given direction.

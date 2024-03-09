@@ -47,9 +47,9 @@ public class Arm extends SubsystemBase {
 
   private static final double k_anglePerSensorUnit = 16.0 / 32.0;
 
-  private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(10.0);
+  private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(25.0);
   private static final AngularAcceleration k_acceleration =
-      AngularAcceleration.degreesPerSecondSquared(2.5);
+      AngularAcceleration.degreesPerSecondSquared(10);
 
   private final Timer m_trajectoryTimer = new WpiTimeSource().createTimer();
   private Angle m_angleGoal = Angle.ZERO;
@@ -80,7 +80,7 @@ public class Arm extends SubsystemBase {
 
     m_positionController = m_LeftArmMasterMotor.getPIDController();
     m_positionController.setFeedbackDevice(m_RelativeEncoder);
-    m_positionController.setP(2);
+    m_positionController.setP(2.0); //gain
 
     SmartDashboard.putNumber("arm/set arm Pos", 0.0);
 
@@ -198,8 +198,8 @@ public class Arm extends SubsystemBase {
             () -> {
               if (position.get().asDegrees() < -2) {
                 m_angleGoal = Angle.degrees(-2.0);
-              } else if (position.get().asDegrees() > 105) {
-                m_angleGoal = Angle.degrees(105);
+              } else if (position.get().asDegrees() > 90) {
+                m_angleGoal = Angle.degrees(90);
               } else {
                 m_angleGoal = position.get();
               }
