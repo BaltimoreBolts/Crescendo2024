@@ -91,10 +91,10 @@ public class Hangers extends SubsystemBase {
     }
   }
 
-  public Command setPowerCommand(Supplier<Double> voltage1, Supplier<Double> voltage2) {
+  public Command setPowerCommand(Supplier<Double> leftVoltage, Supplier<Double> rightVoltage) {
     return new RunCommand(
         () -> {
-          setPower(voltage1.get(), voltage2.get());
+          setPower(leftVoltage.get(), rightVoltage.get());
         },
         this);
   }

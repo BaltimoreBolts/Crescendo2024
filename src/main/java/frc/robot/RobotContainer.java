@@ -89,6 +89,7 @@ public class RobotContainer {
     driver.y().onTrue(new InstantCommand(() -> swerve.resetOdometry(new Pose2d())));
 
     // HANGER
+    // pit controll -- good for reseting position
     driver2
         .a()
         .onTrue(m_hangers.setPowerCommand(
@@ -96,6 +97,10 @@ public class RobotContainer {
             () -> -driver2.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS) * 4.0));
     driver2.a().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
 
+    // send hangers to top of travel
+    driver2.x().onTrue(m_hangers.hangToTopStop());
+
+    // hangers down with hanging power
     driver2
         .y()
         .onTrue(m_hangers.setPowerCommand(
@@ -103,9 +108,14 @@ public class RobotContainer {
             () -> -driver2.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS) * 10.0));
     driver2.y().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
 
-    driver2.b().onTrue(new InstantCommand(() -> m_hangers.resetEncs()));
+    // easing up sides -- to level hang on non-level chain
+    driver2.rightBumper().onTrue(m_hangers.setPowerCommand(() -> 0.0, () -> 1.0));
+    driver2.rightBumper().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
+    driver2.leftBumper().onTrue(m_hangers.setPowerCommand(() -> 1.0, () -> 0.0));
+    driver2.leftBumper().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
 
-    driver2.x().onTrue(m_hangers.hangToTopStop());
+    // reset hangers encoders
+    driver2.b().onTrue(new InstantCommand(() -> m_hangers.resetEncs()));
 
     // ARM
     // driver.b().onTrue(m_arm.setPowerCommand(() -> Voltage.volts(2.0)
