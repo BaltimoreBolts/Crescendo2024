@@ -46,7 +46,6 @@ public class IntakeCommands extends SequentialCommandGroup {
         .andThen(intake.intakeOffCommand()));
   }
 
-
   public Command amazingIntaking(Intake intake) {
     return (intakeNoteTime(intake)
             .until(intake.seeShooterSupplier())
@@ -56,10 +55,7 @@ public class IntakeCommands extends SequentialCommandGroup {
         .withTimeout(10);
   }
 
-
   public Command amazingIntaking3(Intake intake) {
-    return (intakeNoteToBottom(intake)
-            .andThen(intake.outtakeCommand()))
-        .withTimeout(10);
+    return (intakeNoteToBottom(intake).andThen(intake.outtakeCommand())).withTimeout(10);
   }
 }

@@ -80,7 +80,7 @@ public class Arm extends SubsystemBase {
 
     m_positionController = m_LeftArmMasterMotor.getPIDController();
     m_positionController.setFeedbackDevice(m_RelativeEncoder);
-    m_positionController.setP(2.0); //gain
+    m_positionController.setP(2.0); // gain
 
     SmartDashboard.putNumber("arm/set arm Pos", 0.0);
 

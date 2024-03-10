@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -55,7 +54,6 @@ public class Shooter extends SubsystemBase {
 
   public void shooterAtSpeed() {
     this.power = 0.6;
-    //this.power = SmartDashboard.getNumber("shooter/Speed", 0.0);
+    // this.power = SmartDashboard.getNumber("shooter/Speed", 0.0);
   }
-
 }

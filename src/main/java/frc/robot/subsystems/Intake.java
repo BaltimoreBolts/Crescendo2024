@@ -4,15 +4,11 @@ import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-
-// import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.commands.IntakeCommands;
-
 import java.util.function.BooleanSupplier;
 
 public class Intake extends SubsystemBase {
@@ -81,7 +77,8 @@ public class Intake extends SubsystemBase {
 
   // public Command intakeOutCount() {
   //   intakeMotorEncoder.setPosition(0.0);
-  //   return new InstantCommand(() -> if(intakeMotorEncoder < 10) {intakeSlow()} else {intakeOff()});
+  //   return new InstantCommand(() -> if(intakeMotorEncoder < 10) {intakeSlow()} else
+  // {intakeOff()});
   // }
 
   public BooleanSupplier seeShooterSupplier() {
@@ -92,14 +89,14 @@ public class Intake extends SubsystemBase {
     return noteAtIntake::get;
   }
 
-  public boolean getNotIntake(){
+  public boolean getNotIntake() {
     return !noteAtIntake.get();
   }
 
   public BooleanSupplier invertedSeeIntakeSupplier() {
     // Define the inverted supplier inline
     return () -> !noteAtIntake.get();
-}
+  }
 
   public void intakeOff() {
     this.power = 0;

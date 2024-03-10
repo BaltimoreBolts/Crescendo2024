@@ -18,9 +18,11 @@ import frc.robot.utils.SwerveModuleConstants;
 public class Constants {
   /** All joystick, button, and axis IDs. */
   public static class kControls {
-    public static final double AXIS_DEADZONE = 0.1;
+    public static final double AXIS_DEADZONE = 0.075;
 
     public static final int DRIVE_JOYSTICK_ID = 0;
+
+    public static final int DRIVE_JOYSTICK_ID2 = 1;
 
     public static final int TRANSLATION_X_AXIS = XboxController.Axis.kLeftX.value;
     public static final int TRANSLATION_Y_AXIS = XboxController.Axis.kLeftY.value;

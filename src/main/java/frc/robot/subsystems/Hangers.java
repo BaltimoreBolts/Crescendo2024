@@ -63,17 +63,18 @@ public class Hangers extends SubsystemBase {
   }
 
   public void resetEncs() {
-    m_leftHangerEncoder.setPosition(0); //79
-    m_rightHangerEncoder.setPosition(0); //74
+    m_leftHangerEncoder.setPosition(0); // 79
+    m_rightHangerEncoder.setPosition(0); // 74
   }
 
   public Command hangToTop() {
-    return setPowerCommand(() -> 5.0);
+    return setPowerCommand(() -> 5.0, () -> 5.0);
   }
 
-  public Command hangToTopStop(){
-    return hangToTop().until(() -> m_leftHangerEncoder.getPosition() > 75)
-    .andThen(setPowerCommand(() -> 0.0));
+  public Command hangToTopStop() {
+    return hangToTop()
+        .until(() -> m_leftHangerEncoder.getPosition() > 75.0)
+        .andThen(setPowerCommand(() -> 0.0, () -> 0.0));
   }
 
   private void setPower(double leftVoltage, double rightVoltage) {
@@ -90,10 +91,10 @@ public class Hangers extends SubsystemBase {
     }
   }
 
-  public Command setPowerCommand(Supplier<Double> voltage) {
+  public Command setPowerCommand(Supplier<Double> voltage1, Supplier<Double> voltage2) {
     return new RunCommand(
         () -> {
-          setPower(voltage.get(), voltage.get());
+          setPower(voltage1.get(), voltage2.get());
         },
         this);
   }
