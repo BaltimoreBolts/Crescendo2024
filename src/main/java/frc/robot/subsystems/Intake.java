@@ -99,7 +99,7 @@ public class Intake extends SubsystemBase {
   }
 
   public void intakeOff() {
-    this.power = 0;
+    this.power = 0.0;
   }
 
   private void outtake() {

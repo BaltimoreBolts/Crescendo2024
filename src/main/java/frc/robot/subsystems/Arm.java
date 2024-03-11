@@ -103,6 +103,12 @@ public class Arm extends SubsystemBase {
       var trajectoryPos = Angle.radians(m_trajectorySetpoint.position);
       var trajectoryVel = AngularVelocity.radiansPerSecond(m_trajectorySetpoint.velocity);
 
+      if (trajectoryPos.asDegrees() > getRelativePosition().asDegrees() + 1.0
+          || trajectoryPos.asDegrees() < getRelativePosition().asDegrees() - 1.0) {
+        trajectoryPos = getRelativePosition();
+        trajectoryVel = AngularVelocity.ZERO;
+      }
+
       setPosition(trajectoryPos, trajectoryVel);
 
       SmartDashboard.putNumber("arm/trajectory position", trajectoryPos.asDegrees());

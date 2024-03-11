@@ -43,9 +43,6 @@ public class RobotContainer {
   // public final AutoCommands auto;
 
   public RobotContainer() {
-    // driver = new CommandXboxController(Constants.kControls.DRIVE_JOYSTICK_ID);
-
-    // driver2 = new CommandXboxController(Constants.kControls.DRIVE_JOYSTICK_ID2);
 
     swerve = new Swerve();
     intake = new Intake();
@@ -136,7 +133,7 @@ public class RobotContainer {
     // WaitCommand(0.5)).andThen(intake.intakeOffCommand()));
     // driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
     // driver.x().onTrue(m_shooter.shooterSpin().andThen(new WaitCommand(1.5))
-    // .andThen(intake.intakeFastCommand()).andThen(new WaitCommand(2))
+    // .andThen(intake.intakeFastCommand()).andThen(new WaitCommand(2.0))
     // .andThen(m_shooter.shooterOffCommand()).andThen(intake.intakeOffCommand()));
 
   }

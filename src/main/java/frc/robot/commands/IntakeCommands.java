@@ -23,7 +23,7 @@ public class IntakeCommands extends SequentialCommandGroup {
   }
 
   public Command intakeNoteTime(Intake intake) {
-    return (intakeNote(intake).andThen(new WaitCommand(6))).andThen(intake.intakeOffCommand());
+    return (intakeNote(intake).andThen(new WaitCommand(6.0))).andThen(intake.intakeOffCommand());
   }
 
   public Command intakeNoteToBottom(Intake intake) {
@@ -31,12 +31,13 @@ public class IntakeCommands extends SequentialCommandGroup {
   }
 
   public Command outakeNoteTime(Intake intake) {
-    return (intake.outakeFastCommand().andThen(new WaitCommand(3)))
+    return (intake.outakeFastCommand().andThen(new WaitCommand(3.0)))
         .andThen(intake.intakeOffCommand());
   }
 
   public Command intakeNoteTimeSlow(Intake intake) {
-    return (intakeNoteSlow(intake).andThen(new WaitCommand(6))).andThen(intake.intakeOffCommand());
+    return (intakeNoteSlow(intake).andThen(new WaitCommand(6.0)))
+        .andThen(intake.intakeOffCommand());
   }
 
   // stops note in front of shooter - gets too close due to notes momentum/robot reaction time
@@ -52,10 +53,10 @@ public class IntakeCommands extends SequentialCommandGroup {
             .andThen(intake.outtakeCommand())
             .until(intake.seeIntakeSupplier())
             .andThen(intake.intakeOffCommand()))
-        .withTimeout(10);
+        .withTimeout(10.0);
   }
 
   public Command amazingIntaking3(Intake intake) {
-    return (intakeNoteToBottom(intake).andThen(intake.outtakeCommand())).withTimeout(10);
+    return (intakeNoteToBottom(intake).andThen(intake.outtakeCommand())).withTimeout(10.0);
   }
 }
