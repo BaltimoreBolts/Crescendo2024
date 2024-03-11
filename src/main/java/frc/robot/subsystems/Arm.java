@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.library.WpiTimeSource;
 import java.util.function.Supplier;
 import org.growingstems.logic.LogicCore.Edge;
+import org.growingstems.math.RangeU;
 import org.growingstems.measurements.Angle;
 import org.growingstems.measurements.Measurements.AngularAcceleration;
 import org.growingstems.measurements.Measurements.AngularVelocity;
@@ -39,9 +40,11 @@ public class Arm extends SubsystemBase {
       Voltage.volts(0.0).div(AngularVelocity.ZERO);
 
   private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-265.2);
-  private static final Angle k_forwardRawAbsoluteHardStop_SU = Angle.degrees(-21.9 * 4.0);
 
   private static final Angle k_reverseAbsoluteHardStop = Angle.degrees(-2.0);
+
+  private static final RangeU<Angle> k_safeRange =
+      new RangeU<>(k_reverseAbsoluteHardStop, Angle.degrees(90.0));
 
   private Angle m_relOffset = Angle.ZERO;
 
@@ -52,6 +55,7 @@ public class Arm extends SubsystemBase {
       AngularAcceleration.degreesPerSecondSquared(10);
 
   private final Timer m_trajectoryTimer = new WpiTimeSource().createTimer();
+  private Angle m_requestAngleGoal = Angle.ZERO;
   private Angle m_angleGoal = Angle.ZERO;
   private State m_trajectorySetpoint = new State();
   private boolean m_runPositionControl = false;
@@ -94,9 +98,21 @@ public class Arm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    var startedPositionControl = m_startPositionControl.update(m_runPositionControl);
+    // Check if we just switched to position control
+    var positionControlStarted = m_startPositionControl.update(m_runPositionControl);
+
     if (m_runPositionControl) {
-      var currentState = getCurrentState(startedPositionControl);
+      // Check what the requested goal is, and if it has changed
+      var goalChange = m_requestAngleGoal.sub(m_angleGoal).abs().lt(Angle.degrees(0.1));
+      m_angleGoal = m_requestAngleGoal;
+
+      // Reset the current position if we started position control or if the goal changed
+      var reset = positionControlStarted || goalChange;
+
+      // Get the current state, reset it to the current position if we feel we should
+      var currentState = getCurrentState(reset);
+
+      // Generate the current trajectory point to position close-loop to
       m_trajectorySetpoint = m_trajectoryContoller.calculate(
           m_trajectoryTimer.reset().asSeconds(), currentState, getGoalState());
 
@@ -125,7 +141,7 @@ public class Arm extends SubsystemBase {
 
     SmartDashboard.putNumber(
         "arm/angle Setpoint", Angle.radians(m_trajectorySetpoint.position).asDegrees());
-    SmartDashboard.putBoolean("Nick's Test", startedPositionControl);
+    SmartDashboard.putBoolean("Nick's Test", positionControlStarted);
   }
 
   private State getCurrentState(boolean reset) {
@@ -195,16 +211,7 @@ public class Arm extends SubsystemBase {
           m_runPositionControl = true;
         })
         .andThen(new RunCommand(
-            () -> {
-              if (position.get().asDegrees() < -2) {
-                m_angleGoal = Angle.degrees(-2.0);
-              } else if (position.get().asDegrees() > 90) {
-                m_angleGoal = Angle.degrees(90);
-              } else {
-                m_angleGoal = position.get();
-              }
-            },
-            this))
+            () -> m_requestAngleGoal = k_safeRange.coerceValue(position.get()), this))
         .finallyDo(() -> m_runPositionControl = false);
   }
 
