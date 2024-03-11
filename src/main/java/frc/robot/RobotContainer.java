@@ -117,6 +117,13 @@ public class RobotContainer {
     // reset hangers encoders
     driver2.b().onTrue(new InstantCommand(() -> m_hangers.resetEncs()));
 
+    // small intake control for co-driver
+    driver2.pov(0).onTrue(intake.intakeSlowCommand());
+    driver2.pov(0).onFalse(intake.intakeOffCommand());
+
+    driver2.pov(180).onTrue(intake.outtakeCommand());
+    driver2.pov(180).onFalse(intake.intakeOffCommand());
+
     // ARM
     // driver.b().onTrue(m_arm.setPowerCommand(() -> Voltage.volts(2.0)
     //     .mul(-driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS))));
