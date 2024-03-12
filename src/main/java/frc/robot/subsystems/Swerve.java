@@ -6,11 +6,11 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.library.LimelightHelpers.PoseEstimate;
 import frc.robot.Constants;
 import frc.robot.utils.HeadingControl;
 import frc.robot.utils.SwerveModule;
@@ -39,7 +40,7 @@ public class Swerve extends SubsystemBase {
 
   private final HeadingControl m_headingController = new HeadingControl();
 
-  private final SwerveDriveOdometry m_odometry;
+  private final SwerveDrivePoseEstimator m_poseEstimator;
 
   private final Field2d m_dashboardField = new Field2d();
 
@@ -65,8 +66,7 @@ public class Swerve extends SubsystemBase {
 
     zeroGyro();
 
-    m_odometry =
-        new SwerveDriveOdometry(Constants.kSwerve.KINEMATICS, getYaw(), getModulePositionStates());
+        m_poseEstimator = new SwerveDrivePoseEstimator(Constants.kSwerve.KINEMATICS, getYaw(), getModulePositionStates(), new Pose2d());
 
     SmartDashboard.putData("Field", m_dashboardField);
 
@@ -114,7 +114,7 @@ public class Swerve extends SubsystemBase {
               double leftRight = leftRightAxis.getAsDouble();
               double rotation = rotationAxis.getAsDouble();
 
-              m_headingController.update(rotation, m_odometry.getPoseMeters().getRotation());
+              m_headingController.update(rotation, getPose().getRotation());
 
               // Adding deadzone.
               forwardBack =
@@ -179,7 +179,7 @@ public class Swerve extends SubsystemBase {
     // Get desired module states.
     ChassisSpeeds chassisSpeeds = isFieldRelative
         ? ChassisSpeeds.fromFieldRelativeSpeeds(
-            x_mps, y_mps, rotation_rps, m_odometry.getPoseMeters().getRotation())
+            x_mps, y_mps, rotation_rps, getPose().getRotation())
         : new ChassisSpeeds(x_mps, y_mps, rotation_rps);
 
     SwerveModuleState[] states = Constants.kSwerve.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
@@ -193,7 +193,7 @@ public class Swerve extends SubsystemBase {
         new PIDController(3.0, 0.0, 0.0); // if 'ki' or 'kd' is needed, make a member variable
     headingController.enableContinuousInput(-Math.PI, Math.PI);
     double rotation = headingController.calculate(
-        m_odometry.getPoseMeters().getRotation().getRadians(), heading.getRadians());
+      getPose().getRotation().getRadians(), heading.getRadians());
     headingController.close();
 
     setDrive(x_mps, y_mps, rotation, isFieldRelative, isOpenLoop);
@@ -248,7 +248,7 @@ public class Swerve extends SubsystemBase {
   }
 
   public void resetOdometry(Pose2d resetPose) {
-    m_odometry.resetPosition(getYaw(), getModulePositionStates(), resetPose);
+    m_poseEstimator.resetPosition(getYaw(), getModulePositionStates(), resetPose);
     m_headingController.reset(getYaw());
   }
 
@@ -261,21 +261,25 @@ public class Swerve extends SubsystemBase {
   }
 
   public Pose2d getPose() {
-    return m_odometry.getPoseMeters();
+    return m_poseEstimator.getEstimatedPosition();
   }
 
   public ChassisSpeeds getRobotRelativeSpeeds() {
     return Constants.kSwerve.KINEMATICS.toChassisSpeeds(getModuleStates());
   }
 
+  public void updateVision(PoseEstimate visionEstimate) {
+    m_poseEstimator.addVisionMeasurement(visionEstimate.pose, visionEstimate.timestampSeconds);
+  }
+
   @Override
   public void periodic() {
-    m_odometry.update(getYaw(), getModulePositionStates());
-    m_dashboardField.setRobotPose(m_odometry.getPoseMeters());
-    SmartDashboard.putNumber("x_val odom", m_odometry.getPoseMeters().getX());
-    SmartDashboard.putNumber("y_val odom", m_odometry.getPoseMeters().getY());
+    m_poseEstimator.update(getYaw(), getModulePositionStates());
+    m_dashboardField.setRobotPose(getPose());
+    SmartDashboard.putNumber("x_val odom", getPose().getX());
+    SmartDashboard.putNumber("y_val odom", getPose().getY());
     SmartDashboard.putNumber(
-        "angle odom", m_odometry.getPoseMeters().getRotation().getDegrees());
+        "angle odom", getPose().getRotation().getDegrees());
 
     SmartDashboard.putNumber("navX", gyro.getAngle());
 

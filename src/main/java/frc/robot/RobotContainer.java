@@ -5,12 +5,16 @@ import org.growingstems.measurements.Measurements.Voltage;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.library.LimelightHelpers;
+import frc.library.LimelightHelpers.PoseEstimate;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Hangers;
@@ -70,6 +74,18 @@ public class RobotContainer {
   public void update() {
     var joystickPos = -driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS);
     SmartDashboard.putNumber("Joystick Pos", joystickPos);
+
+    // Vision
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent())
+    {
+      PoseEstimate llEstimate = switch (alliance.get()) {
+        case Red -> LimelightHelpers.getBotPoseEstimate_wpiRed("");
+        case Blue -> LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+      };
+
+      swerve.updateVision(llEstimate);
+    }
   }
 
   /**
