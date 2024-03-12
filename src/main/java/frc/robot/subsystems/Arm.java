@@ -129,7 +129,6 @@ public class Arm extends SubsystemBase {
       SmartDashboard.putNumber("arm/trajectory position", trajectoryPos.asDegrees());
       SmartDashboard.putNumber("arm/trajectory velocity", trajectoryVel.asDegreesPerSecond());
     }
-    
 
     SmartDashboard.putBoolean("use trajectory", m_runPositionControl);
 
@@ -198,7 +197,7 @@ public class Arm extends SubsystemBase {
     return k_gravityCompensation.mul(Math.cos(getRelativePosition().asRadians()));
   }
 
-  private Voltage getNewComp(){
+  private Voltage getNewComp() {
     return gravCompV2.mul(Math.cos(getRelativePosition().asRadians()));
   }
 
@@ -210,7 +209,7 @@ public class Arm extends SubsystemBase {
     m_LeftArmMasterMotor.setVoltage(voltage.add(getNewComp()).asVolts());
   }
 
-   public Command setGravCommand(Supplier<Voltage> voltage) {
+  public Command setGravCommand(Supplier<Voltage> voltage) {
     return new InstantCommand(() -> m_runPositionControl = false)
         .andThen(new RunCommand(
             () -> {
@@ -218,7 +217,6 @@ public class Arm extends SubsystemBase {
             },
             this));
   }
-
 
   private void setPosition(Angle position, AngularVelocity velocity) {
     m_positionController.setReference(

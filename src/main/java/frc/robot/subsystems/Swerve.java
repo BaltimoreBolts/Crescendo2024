@@ -39,6 +39,7 @@ public class Swerve extends SubsystemBase {
   private final AHRS gyro;
 
   private final HeadingControl m_headingController = new HeadingControl();
+  PIDController m_headingPid = new PIDController(3.0, 0.0, 0.0);
 
   private final SwerveDrivePoseEstimator m_poseEstimator;
 
@@ -66,7 +67,10 @@ public class Swerve extends SubsystemBase {
 
     zeroGyro();
 
-        m_poseEstimator = new SwerveDrivePoseEstimator(Constants.kSwerve.KINEMATICS, getYaw(), getModulePositionStates(), new Pose2d());
+    m_poseEstimator = new SwerveDrivePoseEstimator(
+        Constants.kSwerve.KINEMATICS, getYaw(), getModulePositionStates(), new Pose2d());
+
+    m_headingPid.enableContinuousInput(-Math.PI, Math.PI);
 
     SmartDashboard.putData("Field", m_dashboardField);
 
@@ -189,12 +193,8 @@ public class Swerve extends SubsystemBase {
 
   private void setDrive(
       double x_mps, double y_mps, Rotation2d heading, boolean isFieldRelative, boolean isOpenLoop) {
-    PIDController headingController =
-        new PIDController(3.0, 0.0, 0.0); // if 'ki' or 'kd' is needed, make a member variable
-    headingController.enableContinuousInput(-Math.PI, Math.PI);
-    double rotation = headingController.calculate(
-      getPose().getRotation().getRadians(), heading.getRadians());
-    headingController.close();
+    double rotation =
+        m_headingPid.calculate(getPose().getRotation().getRadians(), heading.getRadians());
 
     setDrive(x_mps, y_mps, rotation, isFieldRelative, isOpenLoop);
   }
@@ -278,8 +278,7 @@ public class Swerve extends SubsystemBase {
     m_dashboardField.setRobotPose(getPose());
     SmartDashboard.putNumber("x_val odom", getPose().getX());
     SmartDashboard.putNumber("y_val odom", getPose().getY());
-    SmartDashboard.putNumber(
-        "angle odom", getPose().getRotation().getDegrees());
+    SmartDashboard.putNumber("angle odom", getPose().getRotation().getDegrees());
 
     SmartDashboard.putNumber("navX", gyro.getAngle());
 

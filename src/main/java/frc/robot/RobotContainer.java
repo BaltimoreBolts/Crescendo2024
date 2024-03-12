@@ -1,14 +1,10 @@
 package frc.robot;
 
-import org.growingstems.measurements.Angle;
-import org.growingstems.measurements.Measurements.Voltage;
-
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -21,6 +17,8 @@ import frc.robot.subsystems.Hangers;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
+import org.growingstems.measurements.Angle;
+import org.growingstems.measurements.Measurements.Voltage;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -64,7 +62,7 @@ public class RobotContainer {
     SmartDashboard.putBoolean("At Shooter", false);
     SmartDashboard.putBoolean("At Intake", false);
     SmartDashboard.putNumber("Spot", 0);
-    
+
     // auto = new AutoCommands(swerve);
 
     // Configure button bindings
@@ -77,12 +75,12 @@ public class RobotContainer {
 
     // Vision
     var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent())
-    {
-      PoseEstimate llEstimate = switch (alliance.get()) {
-        case Red -> LimelightHelpers.getBotPoseEstimate_wpiRed("");
-        case Blue -> LimelightHelpers.getBotPoseEstimate_wpiBlue("");
-      };
+    if (alliance.isPresent()) {
+      PoseEstimate llEstimate =
+          switch (alliance.get()) {
+            case Red -> LimelightHelpers.getBotPoseEstimate_wpiRed("");
+            case Blue -> LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+          };
 
       swerve.updateVision(llEstimate);
     }
@@ -153,7 +151,8 @@ public class RobotContainer {
     // driver.a().onFalse(m_arm.emergencyStopCommand());
 
     // Arm Auto Controll
-    driver.rightBumper()
+    driver
+        .rightBumper()
         .onTrue(m_arm.setPositionCommand(
             () -> Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0))));
     driver.rightBumper().onFalse(m_arm.setGravCommand(() -> Voltage.volts(.03)));
