@@ -5,7 +5,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
@@ -32,6 +33,8 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import org.growingstems.measurements.Measurements.AngularAcceleration;
+import org.growingstems.measurements.Measurements.AngularVelocity;
 
 public class Swerve extends SubsystemBase {
   private final SwerveModule[] modules;
@@ -39,7 +42,11 @@ public class Swerve extends SubsystemBase {
   private final AHRS gyro;
 
   private final HeadingControl m_headingController = new HeadingControl();
-  PIDController m_headingPid = new PIDController(3.0, 0.0, 0.0);
+  private static final Constraints k_headingProfileConstraints = new Constraints(
+      AngularVelocity.degreesPerSecond(10.0).asRadiansPerSecond(),
+      AngularAcceleration.degreesPerSecondSquared(20.0).asRadiansPerSecondSquared());
+  private final ProfiledPIDController m_headingPid =
+      new ProfiledPIDController(3.0, 0.0, 0.0, k_headingProfileConstraints);
 
   private final SwerveDrivePoseEstimator m_poseEstimator;
 
