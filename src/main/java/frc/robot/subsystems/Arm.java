@@ -35,11 +35,13 @@ public class Arm extends SubsystemBase {
   private final SparkPIDController m_positionController;
 
   private static final Voltage k_gravityCompensation = Voltage.volts(0.5);
+
+  private static final Voltage gravCompV2 = Voltage.volts(0.03);
   /** Voltage per Frequency (Voltage per AngularVelocity) */
   private static final VoltagePerFrequency k_velocityCompensation =
       Voltage.volts(0.0).div(AngularVelocity.ZERO);
 
-  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-265.2);
+  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-269.2);
 
   private static final Angle k_reverseAbsoluteHardStop = Angle.degrees(-2.0);
 
@@ -50,9 +52,9 @@ public class Arm extends SubsystemBase {
 
   private static final double k_anglePerSensorUnit = 16.0 / 32.0;
 
-  private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(25.0);
+  private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(30.0);
   private static final AngularAcceleration k_acceleration =
-      AngularAcceleration.degreesPerSecondSquared(10);
+      AngularAcceleration.degreesPerSecondSquared(15);
 
   private final Timer m_trajectoryTimer = new WpiTimeSource().createTimer();
   private Angle m_requestAngleGoal = Angle.ZERO;
@@ -88,6 +90,9 @@ public class Arm extends SubsystemBase {
 
     SmartDashboard.putNumber("arm/set arm Pos", 0.0);
 
+    SmartDashboard.putNumber("arm/trajectory position", 0);
+    SmartDashboard.putNumber("arm/trajectory velocity", 0);
+
     new WaitCommand(0.5)
         .andThen(this::calculateRelativeOffset)
         .ignoringDisable(true)
@@ -103,7 +108,7 @@ public class Arm extends SubsystemBase {
 
     if (m_runPositionControl) {
       // Check what the requested goal is, and if it has changed
-      var goalChange = m_requestAngleGoal.sub(m_angleGoal).abs().lt(Angle.degrees(0.1));
+      var goalChange = m_requestAngleGoal.sub(m_angleGoal).abs().gt(Angle.degrees(0.1));
       m_angleGoal = m_requestAngleGoal;
 
       // Reset the current position if we started position control or if the goal changed
@@ -124,6 +129,7 @@ public class Arm extends SubsystemBase {
       SmartDashboard.putNumber("arm/trajectory position", trajectoryPos.asDegrees());
       SmartDashboard.putNumber("arm/trajectory velocity", trajectoryVel.asDegreesPerSecond());
     }
+    
 
     SmartDashboard.putBoolean("use trajectory", m_runPositionControl);
 
@@ -192,9 +198,27 @@ public class Arm extends SubsystemBase {
     return k_gravityCompensation.mul(Math.cos(getRelativePosition().asRadians()));
   }
 
+  private Voltage getNewComp(){
+    return gravCompV2.mul(Math.cos(getRelativePosition().asRadians()));
+  }
+
   private void setPower(Voltage voltage) {
     m_LeftArmMasterMotor.setVoltage(voltage.add(getCurrentGravityCompensation()).asVolts());
   }
+
+  private void setGrav(Voltage voltage) {
+    m_LeftArmMasterMotor.setVoltage(voltage.add(getNewComp()).asVolts());
+  }
+
+   public Command setGravCommand(Supplier<Voltage> voltage) {
+    return new InstantCommand(() -> m_runPositionControl = false)
+        .andThen(new RunCommand(
+            () -> {
+              setGrav(voltage.get());
+            },
+            this));
+  }
+
 
   private void setPosition(Angle position, AngularVelocity velocity) {
     m_positionController.setReference(
