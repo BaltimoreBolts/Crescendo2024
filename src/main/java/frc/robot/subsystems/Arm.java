@@ -34,7 +34,7 @@ public class Arm extends SubsystemBase {
   private final RelativeEncoder m_RelativeEncoder;
   private final SparkPIDController m_positionController;
 
-  private static final Voltage k_gravityCompensation = Voltage.volts(0.5);
+  private static final Voltage k_gravityCompensation = Voltage.volts(1.75);
 
   private static final Voltage gravCompV2 = Voltage.volts(0.03);
   /** Voltage per Frequency (Voltage per AngularVelocity) */
@@ -86,7 +86,7 @@ public class Arm extends SubsystemBase {
 
     m_positionController = m_LeftArmMasterMotor.getPIDController();
     m_positionController.setFeedbackDevice(m_RelativeEncoder);
-    m_positionController.setP(2.0); // gain
+    m_positionController.setP(2.3); // gain
 
     SmartDashboard.putNumber("arm/set arm Pos", 0.0);
 
