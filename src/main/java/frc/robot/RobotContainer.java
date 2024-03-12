@@ -133,14 +133,14 @@ public class RobotContainer {
         .mul(-driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS))));
     driver.b().onFalse(m_arm.emergencyStopCommand());
 
-    driver.a().onTrue(m_arm.setGravCommand(() -> Voltage.volts(.03)));
-    driver.a().onFalse(m_arm.emergencyStopCommand());
+    // driver.a().onTrue(m_arm.setGravCommand(() -> Voltage.volts(.03)));
+    // driver.a().onFalse(m_arm.emergencyStopCommand());
 
     // Arm Auto Controll
     driver.rightBumper()
         .onTrue(m_arm.setPositionCommand(
             () -> Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0))));
-    driver.rightBumper().onFalse(m_arm.emergencyStopCommand());
+    driver.rightBumper().onFalse(m_arm.setGravCommand(() -> Voltage.volts(.03)));
 
     // test this
 
