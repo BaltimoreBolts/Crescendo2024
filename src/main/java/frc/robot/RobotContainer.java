@@ -5,6 +5,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -18,7 +20,10 @@ import frc.robot.subsystems.Hangers;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
+
+import org.apache.commons.math3.complex.ComplexUtils;
 import org.growingstems.measurements.Angle;
+import org.growingstems.measurements.Measurements.Length;
 import org.growingstems.measurements.Measurements.Voltage;
 
 /**
@@ -48,6 +53,8 @@ public class RobotContainer {
 
   // public final AutoCommands auto;
 
+  private static final Field2d m_field = new Field2d();
+
   public RobotContainer() {
     // driver = new CommandXboxController(Constants.kControls.DRIVE_JOYSTICK_ID);
 
@@ -63,6 +70,7 @@ public class RobotContainer {
     SmartDashboard.putBoolean("At Shooter", false);
     SmartDashboard.putBoolean("At Intake", false);
     SmartDashboard.putNumber("Spot", 0);
+    SmartDashboard.putData("Field", m_field);
 
     // auto = new AutoCommands(swerve);
 
@@ -85,6 +93,8 @@ public class RobotContainer {
 
       swerve.updateVision(llEstimate);
     }
+
+    m_field.setRobotPose(swerve.getPose());
   }
 
   /**
@@ -94,16 +104,16 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // swerve.setDefaultCommand(swerve.drive(
-    //   () ->
-    // -Constants.kControls.X_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)),
-    //   () ->
-    // -Constants.kControls.Y_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS)),
-    //   () ->
-    // -Constants.kControls.THETA_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.ROTATION_AXIS)),
-    //   true,
-    //   true
-    // ));
+    swerve.setDefaultCommand(swerve.drive(
+      () ->
+    -Constants.kControls.X_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)),
+      () ->
+    -Constants.kControls.Y_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS)),
+      () ->
+    -Constants.kControls.THETA_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.ROTATION_AXIS)),
+      true,
+      true
+    ));
 
     driver.y().onTrue(new InstantCommand(() -> swerve.resetOdometry(new Pose2d())));
 
@@ -168,6 +178,19 @@ public class RobotContainer {
     driver.x().onTrue(m_shooter.shooterSpin().andThen(new WaitCommand(1.5))
     .andThen(intake.intakeFastCommand()).andThen(new WaitCommand(2))
     .andThen(m_shooter.shooterOffCommand()).andThen(intake.intakeOffCommand()));
+
+    var blueTarget = new Vector2dU<Length>(Length.);
+    Supplier<Angle> aimAngle = 
+    var aimCommand = swerve.drive(
+      () ->
+    -Constants.kControls.X_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)),
+      () ->
+    -Constants.kControls.Y_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS)),
+      () ->
+    -Constants.kControls.THETA_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.ROTATION_AXIS)),
+      true,
+      true
+    ));
 
   }
 
