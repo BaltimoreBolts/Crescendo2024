@@ -19,11 +19,7 @@ import frc.robot.subsystems.Hangers;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-import org.growingstems.math.Vector2dU;
 import org.growingstems.measurements.Angle;
-import org.growingstems.measurements.Measurements.Length;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a

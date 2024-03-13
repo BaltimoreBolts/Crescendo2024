@@ -1,12 +1,11 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -34,13 +33,23 @@ public class Arm extends SubsystemBase {
   private final RelativeEncoder m_RelativeEncoder;
   private final SparkPIDController m_positionController;
 
+  private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(140.0);
+  private static final AngularAcceleration k_acceleration =
+      AngularAcceleration.degreesPerSecondSquared(100.0);
+
+  private static final Constraints k_profiledConstraints = new Constraints(
+      k_cruiseVelocity.asRadiansPerSecond(), k_acceleration.asRadiansPerSecondSquared());
+
+  private final ProfiledPIDController m_positionPid =
+      new ProfiledPIDController(3.0, 0.0, 0.0, k_profiledConstraints);
+
   private static final Voltage k_gravityCompensation = Voltage.volts(0.2);
 
   /** Voltage per Frequency (Voltage per AngularVelocity) */
   private static final VoltagePerFrequency k_velocityCompensation =
       Voltage.volts(2.25).div(new AngularVelocity(1.0)); // 2.25, 1.0
 
-  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-61.9);
+  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-63.0);
 
   private static final Angle k_reverseAbsoluteHardStop = Angle.degrees(-2.0);
 
@@ -51,19 +60,12 @@ public class Arm extends SubsystemBase {
 
   private static final double k_anglePerSensorUnit = 16.0 / 32.0;
 
-  private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(140.0);
-  private static final AngularAcceleration k_acceleration =
-      AngularAcceleration.degreesPerSecondSquared(100.0);
-
   private final Timer m_trajectoryTimer = new WpiTimeSource().createTimer();
   private Angle m_requestAngleGoal = Angle.ZERO;
   private Angle m_angleGoal = Angle.ZERO;
   private State m_trajectorySetpoint = new State();
   private boolean m_runPositionControl = false;
   private EdgeDetector m_startPositionControl = new EdgeDetector(Edge.RISING);
-
-  private final TrapezoidProfile m_trajectoryContoller = new TrapezoidProfile(new Constraints(
-      k_cruiseVelocity.asRadiansPerSecond(), k_acceleration.asRadiansPerSecondSquared()));
 
   public Arm() {
     @SuppressWarnings("resource")
@@ -106,27 +108,9 @@ public class Arm extends SubsystemBase {
     var positionControlStarted = m_startPositionControl.update(m_runPositionControl);
 
     if (m_runPositionControl) {
-      // Check what the requested goal is, and if it has changed
-      // var goalChange = m_requestAngleGoal.sub(m_angleGoal).abs().gt(Angle.degrees(0.1));
       m_angleGoal = m_requestAngleGoal;
 
-      // Reset the current position if we started position control or if the goal changed
-      var reset = positionControlStarted; // || goalChange;
-
-      // Get the current state, reset it to the current position if we feel we should
-      var currentState = getCurrentState(reset);
-
-      // Generate the current trajectory point to position close-loop to
-      m_trajectorySetpoint = m_trajectoryContoller.calculate(
-          m_trajectoryTimer.reset().asSeconds(), currentState, getGoalState());
-
-      var trajectoryPos = Angle.radians(m_trajectorySetpoint.position);
-      var trajectoryVel = AngularVelocity.radiansPerSecond(m_trajectorySetpoint.velocity);
-
-      setPosition(trajectoryPos, trajectoryVel);
-
-      SmartDashboard.putNumber("arm/trajectory position", trajectoryPos.asDegrees());
-      SmartDashboard.putNumber("arm/trajectory velocity", trajectoryVel.asDegreesPerSecond());
+      setPosition(m_angleGoal);
     }
 
     SmartDashboard.putBoolean("arm/in set pos", m_runPositionControl);
@@ -148,21 +132,6 @@ public class Arm extends SubsystemBase {
     SmartDashboard.putNumber(
         "arm/angle Setpoint", Angle.radians(m_trajectorySetpoint.position).asDegrees());
     SmartDashboard.putBoolean("Nick's Test", positionControlStarted);
-  }
-
-  private State getCurrentState(boolean reset) {
-    if (reset) {
-      m_trajectorySetpoint = new State(
-          getRelativePosition().asRadians(),
-          AngularVelocity.revolutionsPerMinute(m_RelativeEncoder.getVelocity())
-              .asRadiansPerSecond());
-    }
-
-    return m_trajectorySetpoint;
-  }
-
-  private State getGoalState() {
-    return new State(m_angleGoal.asRadians(), AngularVelocity.ZERO.asRadiansPerSecond());
   }
 
   private void calculateRelativeOffset() {
@@ -202,14 +171,18 @@ public class Arm extends SubsystemBase {
     m_LeftArmMasterMotor.setVoltage(voltage.add(getCurrentGravityCompensation()).asVolts());
   }
 
-  private void setPosition(Angle position, AngularVelocity velocity) {
-    m_positionController.setReference(
-        angleToSensorUnits(k_safeRange.coerceValue(position)).asRotations(),
-        ControlType.kPosition,
-        0,
-        getCurrentGravityCompensation()
-            .add(k_velocityCompensation.mul(velocity))
-            .asVolts());
+  private void setPosition(Angle goal) {
+    var power =
+        Voltage.volts(m_positionPid.calculate(getRelativePosition().asRadians(), goal.asRadians()));
+    var position = Angle.radians(m_positionPid.getSetpoint().position);
+    var velocity = AngularVelocity.radiansPerSecond(m_positionPid.getSetpoint().velocity);
+
+    SmartDashboard.putNumber("arm/trajectory position", position.asDegrees());
+    SmartDashboard.putNumber("arm/trajectory velocity", velocity.asDegreesPerSecond());
+
+    var compensatedPower =
+        power.add(getCurrentGravityCompensation()).add(k_velocityCompensation.mul(velocity));
+    setPower(compensatedPower);
   }
 
   public Command setPositionCommand(Supplier<Angle> position) {
