@@ -18,7 +18,7 @@ import frc.robot.utils.SwerveModuleConstants;
 public class Constants {
   /** All joystick, button, and axis IDs. */
   public static class kControls {
-    public static final double AXIS_DEADZONE = 0.075;
+    public static final double AXIS_DEADZONE = 0.1;
 
     public static final int DRIVE_JOYSTICK_ID = 0;
 

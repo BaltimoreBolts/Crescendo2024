@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.library.LimelightHelpers;
 import frc.library.LimelightHelpers.PoseEstimate;
@@ -143,30 +144,30 @@ public class RobotContainer {
     driver2.pov(180).onFalse(intake.intakeOffCommand());
 
     // ARM Manual Control
-    driver.b().onTrue(m_arm.setPowerCommand(() -> Voltage.volts(2.0)
-        .mul(-driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS))));
-    driver.b().onFalse(m_arm.emergencyStopCommand());
+    // driver.b().onTrue(m_arm.setPowerCommand(() -> Voltage.volts(2.0)
+    //     .mul(-driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS))));
+    // // driver.b().onFalse(m_arm.emergencyStopCommand());
 
     // driver.a().onTrue(m_arm.setGravCommand(() -> Voltage.volts(.03)));
     // driver.a().onFalse(m_arm.emergencyStopCommand());
 
     // Arm Auto Controll
-    driver
-        .rightBumper()
+    driver.a()
         .onTrue(m_arm.setPositionCommand(
             () -> Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0))));
-    driver.rightBumper().onFalse(m_arm.setGravCommand(() -> Voltage.volts(.03)));
+    driver.b().onTrue(m_arm.setPositionCommand(() -> Angle.degrees(95.0)));
+    driver.rightBumper().onTrue(m_arm.setPositionCommand(() -> Angle.degrees(-2.0)));
 
     // test this
 
     // INTAKE AND SHOOT
     // driver.a().onTrue(intake.intakeOffCommand());
-    // driver.rightBumper().onTrue(intakeCommands.amazingIntaking3(intake).andThen(new
-    // WaitCommand(0.5)).andThen(intake.intakeOffCommand()));
-    // driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
-    // driver.x().onTrue(m_shooter.shooterSpin().andThen(new WaitCommand(1.5))
-    // .andThen(intake.intakeFastCommand()).andThen(new WaitCommand(2))
-    // .andThen(m_shooter.shooterOffCommand()).andThen(intake.intakeOffCommand()));
+    driver.rightBumper().onTrue(intakeCommands.amazingIntaking3(intake).andThen(new
+    WaitCommand(0.5)).andThen(intake.intakeOffCommand()));
+    driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
+    driver.x().onTrue(m_shooter.shooterSpin().andThen(new WaitCommand(1.5))
+    .andThen(intake.intakeFastCommand()).andThen(new WaitCommand(2))
+    .andThen(m_shooter.shooterOffCommand()).andThen(intake.intakeOffCommand()));
 
   }
 
