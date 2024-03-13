@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -34,27 +35,27 @@ public class Arm extends SubsystemBase {
   private final RelativeEncoder m_RelativeEncoder;
   private final SparkPIDController m_positionController;
 
-  private static final Voltage k_gravityCompensation = Voltage.volts(1.75);
+  private static final Voltage k_gravityCompensation = Voltage.volts(0.2);
 
   private static final Voltage gravCompV2 = Voltage.volts(0.03);
   /** Voltage per Frequency (Voltage per AngularVelocity) */
   private static final VoltagePerFrequency k_velocityCompensation =
-      Voltage.volts(0.0).div(AngularVelocity.ZERO);
+      Voltage.volts(2.25).div(new AngularVelocity(1.0));
 
-  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-269.2);
+  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-178.7);
 
   private static final Angle k_reverseAbsoluteHardStop = Angle.degrees(-2.0);
 
   private static final RangeU<Angle> k_safeRange =
-      new RangeU<>(k_reverseAbsoluteHardStop, Angle.degrees(90.0));
+      new RangeU<>(k_reverseAbsoluteHardStop, Angle.degrees(95.0));
 
   private Angle m_relOffset = Angle.ZERO;
 
   private static final double k_anglePerSensorUnit = 16.0 / 32.0;
 
-  private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(30.0);
+  private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(140.0);
   private static final AngularAcceleration k_acceleration =
-      AngularAcceleration.degreesPerSecondSquared(15);
+      AngularAcceleration.degreesPerSecondSquared(100.0);
 
   private final Timer m_trajectoryTimer = new WpiTimeSource().createTimer();
   private Angle m_requestAngleGoal = Angle.ZERO;
@@ -86,7 +87,7 @@ public class Arm extends SubsystemBase {
 
     m_positionController = m_LeftArmMasterMotor.getPIDController();
     m_positionController.setFeedbackDevice(m_RelativeEncoder);
-    m_positionController.setP(2.3); // gain
+    m_positionController.setP(3.0);
 
     SmartDashboard.putNumber("arm/set arm Pos", 0.0);
 
@@ -125,11 +126,12 @@ public class Arm extends SubsystemBase {
       var trajectoryVel = AngularVelocity.radiansPerSecond(m_trajectorySetpoint.velocity);
 
       setPosition(trajectoryPos, trajectoryVel);
-
+      
       SmartDashboard.putNumber("arm/trajectory position", trajectoryPos.asDegrees());
       SmartDashboard.putNumber("arm/trajectory velocity", trajectoryVel.asDegreesPerSecond());
     }
     
+    SmartDashboard.putBoolean("arm/in set pos", m_runPositionControl);
 
     SmartDashboard.putBoolean("use trajectory", m_runPositionControl);
 
@@ -221,8 +223,11 @@ public class Arm extends SubsystemBase {
 
 
   private void setPosition(Angle position, AngularVelocity velocity) {
+    System.out.println("Power: " + getCurrentGravityCompensation()
+            .add(k_velocityCompensation.mul(velocity))
+            .asVolts());
     m_positionController.setReference(
-        angleToSensorUnits(position).asRotations(),
+        angleToSensorUnits(k_safeRange.coerceValue(position)).asRotations(),
         ControlType.kPosition,
         0,
         getCurrentGravityCompensation()
@@ -236,7 +241,10 @@ public class Arm extends SubsystemBase {
         })
         .andThen(new RunCommand(
             () -> m_requestAngleGoal = k_safeRange.coerceValue(position.get()), this))
-        .finallyDo(() -> m_runPositionControl = false);
+        .finallyDo(() -> {
+          m_runPositionControl = false;
+          m_LeftArmMasterMotor.stopMotor();
+        });
   }
 
   public Command setPowerCommand(Supplier<Voltage> voltage) {

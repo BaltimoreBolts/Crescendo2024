@@ -130,9 +130,9 @@ public class RobotContainer {
     driver2.pov(180).onFalse(intake.intakeOffCommand());
 
     // ARM Manual Control
-    driver.b().onTrue(m_arm.setPowerCommand(() -> Voltage.volts(2.0)
-        .mul(-driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS))));
-    // driver.b().onFalse(m_arm.emergencyStopCommand());
+    // driver.b().onTrue(m_arm.setPowerCommand(() -> Voltage.volts(2.0)
+    //     .mul(-driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS))));
+    // // driver.b().onFalse(m_arm.emergencyStopCommand());
 
     // driver.a().onTrue(m_arm.setGravCommand(() -> Voltage.volts(.03)));
     // driver.a().onFalse(m_arm.emergencyStopCommand());
@@ -141,7 +141,8 @@ public class RobotContainer {
     driver.a()
         .onTrue(m_arm.setPositionCommand(
             () -> Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0))));
-    // driver.a().onFalse(m_arm.setGravCommand(() -> Voltage.volts(.03)));
+    driver.b().onTrue(m_arm.setPositionCommand(() -> Angle.degrees(95.0)));
+    driver.rightBumper().onTrue(m_arm.setPositionCommand(() -> Angle.degrees(-2.0)));
 
     // test this
 
