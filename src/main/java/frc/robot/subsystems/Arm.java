@@ -38,7 +38,7 @@ public class Arm extends SubsystemBase {
 
   /** Voltage per Frequency (Voltage per AngularVelocity) */
   private static final VoltagePerFrequency k_velocityCompensation =
-      Voltage.volts(0).div(new AngularVelocity(1.0)); // 2.25, 1.0
+      Voltage.volts(2.25).div(new AngularVelocity(1.0)); // 2.25, 1.0
 
   private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-61.9);
 
@@ -85,7 +85,7 @@ public class Arm extends SubsystemBase {
 
     m_positionController = m_LeftArmMasterMotor.getPIDController();
     m_positionController.setFeedbackDevice(m_RelativeEncoder);
-    m_positionController.setP(0); // gain
+    m_positionController.setP(3); // gain
 
     SmartDashboard.putNumber("arm/set arm Pos", 0.0);
 
