@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.library.ConversionUtils;
 import frc.library.LimelightHelpers.PoseEstimate;
 import frc.robot.Constants;
 import frc.robot.utils.HeadingControl;
@@ -32,6 +33,9 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import org.growingstems.math.Pose2dU;
+import org.growingstems.measurements.Angle;
+import org.growingstems.measurements.Measurements.Length;
 
 public class Swerve extends SubsystemBase {
   private final SwerveModule[] modules;
@@ -68,7 +72,7 @@ public class Swerve extends SubsystemBase {
     zeroGyro();
 
     m_poseEstimator = new SwerveDrivePoseEstimator(
-        Constants.kSwerve.KINEMATICS, getYaw(), getModulePositionStates(), new Pose2d());
+        Constants.kSwerve.KINEMATICS, getWpiYaw(), getModulePositionStates(), new Pose2d());
 
     m_headingPid.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -79,7 +83,7 @@ public class Swerve extends SubsystemBase {
     SmartDashboard.putNumber("drivekD", Constants.kSwerve.ANGLE_KD);
 
     AutoBuilder.configureHolonomic(
-        this::getPose, // Robot pose supplier
+        this::getWpiPose, // Robot pose supplier
         this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting
         // pose)
         this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
@@ -118,7 +122,8 @@ public class Swerve extends SubsystemBase {
               double leftRight = leftRightAxis.getAsDouble();
               double rotation = rotationAxis.getAsDouble();
 
-              m_headingController.update(rotation, getPose().getRotation());
+              m_headingController.update(
+                  rotation, ConversionUtils.fromWpi(getWpiPose().getRotation()));
 
               // Adding deadzone.
               forwardBack =
@@ -149,15 +154,15 @@ public class Swerve extends SubsystemBase {
   public Command drive(
       DoubleSupplier forwardBackAxis,
       DoubleSupplier leftRightAxis,
-      Supplier<Rotation2d> headingAngle,
+      Supplier<Angle> headingAngle,
       boolean isFieldRelative,
       boolean isOpenLoop) {
     return new RunCommand(
             () -> {
               // Grabbing input from suppliers.
-              double forwardBack = forwardBackAxis.getAsDouble();
-              double leftRight = leftRightAxis.getAsDouble();
-              Rotation2d heading = headingAngle.get();
+              var forwardBack = forwardBackAxis.getAsDouble();
+              var leftRight = leftRightAxis.getAsDouble();
+              var heading = headingAngle.get();
 
               // Adding deadzone.
               forwardBack =
@@ -183,7 +188,7 @@ public class Swerve extends SubsystemBase {
     // Get desired module states.
     ChassisSpeeds chassisSpeeds = isFieldRelative
         ? ChassisSpeeds.fromFieldRelativeSpeeds(
-            x_mps, y_mps, rotation_rps, getPose().getRotation())
+            x_mps, y_mps, rotation_rps, getWpiPose().getRotation())
         : new ChassisSpeeds(x_mps, y_mps, rotation_rps);
 
     SwerveModuleState[] states = Constants.kSwerve.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
@@ -192,9 +197,9 @@ public class Swerve extends SubsystemBase {
   }
 
   private void setDrive(
-      double x_mps, double y_mps, Rotation2d heading, boolean isFieldRelative, boolean isOpenLoop) {
-    double rotation =
-        m_headingPid.calculate(getPose().getRotation().getRadians(), heading.getRadians());
+      double x_mps, double y_mps, Angle heading, boolean isFieldRelative, boolean isOpenLoop) {
+    double rotation = m_headingPid.calculate(
+        getWpiPose().getRotation().getRadians(), heading.difference(Angle.ZERO).asRadians());
 
     setDrive(x_mps, y_mps, rotation, isFieldRelative, isOpenLoop);
   }
@@ -243,12 +248,16 @@ public class Swerve extends SubsystemBase {
     return currentStates;
   }
 
-  public Rotation2d getYaw() {
-    return Rotation2d.fromDegrees(-gyro.getYaw());
+  public Angle getYaw() {
+    return Angle.degrees(-gyro.getYaw());
+  }
+
+  public Rotation2d getWpiYaw() {
+    return ConversionUtils.toWpi(getYaw());
   }
 
   public void resetOdometry(Pose2d resetPose) {
-    m_poseEstimator.resetPosition(getYaw(), getModulePositionStates(), resetPose);
+    m_poseEstimator.resetPosition(getWpiYaw(), getModulePositionStates(), resetPose);
     m_headingController.reset(getYaw());
   }
 
@@ -260,8 +269,12 @@ public class Swerve extends SubsystemBase {
     gyro.zeroYaw();
   }
 
-  public Pose2d getPose() {
+  public Pose2d getWpiPose() {
     return m_poseEstimator.getEstimatedPosition();
+  }
+
+  public Pose2dU<Length> getPose() {
+    return ConversionUtils.fromWpi(getWpiPose());
   }
 
   public ChassisSpeeds getRobotRelativeSpeeds() {
@@ -274,11 +287,11 @@ public class Swerve extends SubsystemBase {
 
   @Override
   public void periodic() {
-    m_poseEstimator.update(getYaw(), getModulePositionStates());
-    m_dashboardField.setRobotPose(getPose());
-    SmartDashboard.putNumber("x_val odom", getPose().getX());
-    SmartDashboard.putNumber("y_val odom", getPose().getY());
-    SmartDashboard.putNumber("angle odom", getPose().getRotation().getDegrees());
+    m_poseEstimator.update(getWpiYaw(), getModulePositionStates());
+    m_dashboardField.setRobotPose(getWpiPose());
+    SmartDashboard.putNumber("x_val odom", getWpiPose().getX());
+    SmartDashboard.putNumber("y_val odom", getWpiPose().getY());
+    SmartDashboard.putNumber("angle odom", getWpiPose().getRotation().getDegrees());
 
     SmartDashboard.putNumber("navX", gyro.getAngle());
 

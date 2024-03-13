@@ -5,7 +5,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,11 +19,11 @@ import frc.robot.subsystems.Hangers;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
-
-import org.apache.commons.math3.complex.ComplexUtils;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+import org.growingstems.math.Vector2dU;
 import org.growingstems.measurements.Angle;
 import org.growingstems.measurements.Measurements.Length;
-import org.growingstems.measurements.Measurements.Voltage;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -94,7 +93,7 @@ public class RobotContainer {
       swerve.updateVision(llEstimate);
     }
 
-    m_field.setRobotPose(swerve.getPose());
+    m_field.setRobotPose(swerve.getWpiPose());
   }
 
   /**
@@ -104,16 +103,14 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    swerve.setDefaultCommand(swerve.drive(
-      () ->
-    -Constants.kControls.X_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)),
-      () ->
-    -Constants.kControls.Y_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS)),
-      () ->
-    -Constants.kControls.THETA_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.ROTATION_AXIS)),
-      true,
-      true
-    ));
+    DoubleSupplier xDriveAxis = () -> -Constants.kControls.X_DRIVE_LIMITER.calculate(
+        driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS));
+    DoubleSupplier yDriveAxis = () -> -Constants.kControls.Y_DRIVE_LIMITER.calculate(
+        driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS));
+    DoubleSupplier thetaDriveAxis = () -> -Constants.kControls.THETA_DRIVE_LIMITER.calculate(
+        driver.getRawAxis(Constants.kControls.ROTATION_AXIS));
+
+    swerve.setDefaultCommand(swerve.drive(xDriveAxis, yDriveAxis, thetaDriveAxis, true, true));
 
     driver.y().onTrue(new InstantCommand(() -> swerve.resetOdometry(new Pose2d())));
 
@@ -162,7 +159,8 @@ public class RobotContainer {
     // driver.a().onFalse(m_arm.emergencyStopCommand());
 
     // Arm Auto Controll
-    driver.a()
+    driver
+        .a()
         .onTrue(m_arm.setPositionCommand(
             () -> Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0))));
     driver.b().onTrue(m_arm.setPositionCommand(() -> Angle.degrees(95.0)));
@@ -172,26 +170,29 @@ public class RobotContainer {
 
     // INTAKE AND SHOOT
     // driver.a().onTrue(intake.intakeOffCommand());
-    driver.rightBumper().onTrue(intakeCommands.amazingIntaking3(intake).andThen(new
-    WaitCommand(0.5)).andThen(intake.intakeOffCommand()));
+    driver
+        .rightBumper()
+        .onTrue(intakeCommands
+            .amazingIntaking3(intake)
+            .andThen(new WaitCommand(0.5))
+            .andThen(intake.intakeOffCommand()));
     driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
-    driver.x().onTrue(m_shooter.shooterSpin().andThen(new WaitCommand(1.5))
-    .andThen(intake.intakeFastCommand()).andThen(new WaitCommand(2))
-    .andThen(m_shooter.shooterOffCommand()).andThen(intake.intakeOffCommand()));
+    driver
+        .x()
+        .onTrue(m_shooter
+            .shooterSpin()
+            .andThen(new WaitCommand(1.5))
+            .andThen(intake.intakeFastCommand())
+            .andThen(new WaitCommand(2))
+            .andThen(m_shooter.shooterOffCommand())
+            .andThen(intake.intakeOffCommand()));
 
-    var blueTarget = new Vector2dU<Length>(Length.);
-    Supplier<Angle> aimAngle = 
-    var aimCommand = swerve.drive(
-      () ->
-    -Constants.kControls.X_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS)),
-      () ->
-    -Constants.kControls.Y_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS)),
-      () ->
-    -Constants.kControls.THETA_DRIVE_LIMITER.calculate(driver.getRawAxis(Constants.kControls.ROTATION_AXIS)),
-      true,
-      true
-    ));
+    var blueTarget = new Vector2dU<Length>(Length.ZERO, Length.ZERO);
+    Supplier<Angle> aimAngle =
+        () -> blueTarget.sub(swerve.getPose().getVector()).getAngle();
+    var aimCommand = swerve.drive(xDriveAxis, yDriveAxis, aimAngle, true, true);
 
+    driver.leftTrigger().onTrue(aimCommand);
   }
 
   /**

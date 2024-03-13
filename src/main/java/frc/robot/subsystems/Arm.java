@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkBase.SoftLimitDirection;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -37,10 +36,9 @@ public class Arm extends SubsystemBase {
 
   private static final Voltage k_gravityCompensation = Voltage.volts(0.2);
 
-  private static final Voltage gravCompV2 = Voltage.volts(0.03);
   /** Voltage per Frequency (Voltage per AngularVelocity) */
   private static final VoltagePerFrequency k_velocityCompensation =
-      Voltage.volts(0).div(new AngularVelocity(1.0)); //2.25, 1.0
+      Voltage.volts(0).div(new AngularVelocity(1.0)); // 2.25, 1.0
 
   private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-61.9);
 
@@ -87,7 +85,7 @@ public class Arm extends SubsystemBase {
 
     m_positionController = m_LeftArmMasterMotor.getPIDController();
     m_positionController.setFeedbackDevice(m_RelativeEncoder);
-    m_positionController.setP(0); //gain
+    m_positionController.setP(0); // gain
 
     SmartDashboard.putNumber("arm/set arm Pos", 0.0);
 
@@ -109,11 +107,11 @@ public class Arm extends SubsystemBase {
 
     if (m_runPositionControl) {
       // Check what the requested goal is, and if it has changed
-      var goalChange = m_requestAngleGoal.sub(m_angleGoal).abs().gt(Angle.degrees(0.1));
+      // var goalChange = m_requestAngleGoal.sub(m_angleGoal).abs().gt(Angle.degrees(0.1));
       m_angleGoal = m_requestAngleGoal;
 
       // Reset the current position if we started position control or if the goal changed
-      var reset = positionControlStarted || goalChange;
+      var reset = positionControlStarted; // || goalChange;
 
       // Get the current state, reset it to the current position if we feel we should
       var currentState = getCurrentState(reset);
@@ -126,11 +124,11 @@ public class Arm extends SubsystemBase {
       var trajectoryVel = AngularVelocity.radiansPerSecond(m_trajectorySetpoint.velocity);
 
       setPosition(trajectoryPos, trajectoryVel);
-      
+
       SmartDashboard.putNumber("arm/trajectory position", trajectoryPos.asDegrees());
       SmartDashboard.putNumber("arm/trajectory velocity", trajectoryVel.asDegreesPerSecond());
     }
-    
+
     SmartDashboard.putBoolean("arm/in set pos", m_runPositionControl);
 
     SmartDashboard.putBoolean("use trajectory", m_runPositionControl);
@@ -200,31 +198,11 @@ public class Arm extends SubsystemBase {
     return k_gravityCompensation.mul(Math.cos(getRelativePosition().asRadians()));
   }
 
-  private Voltage getNewComp() {
-    return gravCompV2.mul(Math.cos(getRelativePosition().asRadians()));
-  }
-
   private void setPower(Voltage voltage) {
     m_LeftArmMasterMotor.setVoltage(voltage.add(getCurrentGravityCompensation()).asVolts());
   }
 
-  private void setGrav(Voltage voltage) {
-    m_LeftArmMasterMotor.setVoltage(voltage.add(getNewComp()).asVolts());
-  }
-
-  public Command setGravCommand(Supplier<Voltage> voltage) {
-    return new InstantCommand(() -> m_runPositionControl = false)
-        .andThen(new RunCommand(
-            () -> {
-              setGrav(voltage.get());
-            },
-            this));
-  }
-
   private void setPosition(Angle position, AngularVelocity velocity) {
-    System.out.println("Power: " + getCurrentGravityCompensation()
-            .add(k_velocityCompensation.mul(velocity))
-            .asVolts());
     m_positionController.setReference(
         angleToSensorUnits(k_safeRange.coerceValue(position)).asRotations(),
         ControlType.kPosition,
@@ -241,12 +219,11 @@ public class Arm extends SubsystemBase {
         .andThen(new RunCommand(
             () -> m_requestAngleGoal = k_safeRange.coerceValue(position.get()), this))
         .finallyDo(() -> {
-          // m_runPositionControl = false;
           m_LeftArmMasterMotor.stopMotor();
         });
   }
 
-  public Command setPowerCommand(Supplier<Voltage> voltage) {
+  private Command setPowerCommand(Supplier<Voltage> voltage) {
     return new InstantCommand(() -> m_runPositionControl = false)
         .andThen(new RunCommand(
             () -> {
