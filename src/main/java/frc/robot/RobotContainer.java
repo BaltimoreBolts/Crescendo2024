@@ -2,6 +2,7 @@ package frc.robot;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -11,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.library.LimelightHelpers;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Hangers;
@@ -88,6 +90,10 @@ public class RobotContainer {
 
     //   swerve.updateVision(llEstimate);
     // }
+    
+    LimelightHelpers.setCameraMode_Driver("limelight");
+    //LimelightHelpers.setCameraMode_Processor("limelight");
+    LimelightHelpers.setStreamMode_PiPMain("limelight");
 
     m_field.setRobotPose(swerve.getWpiPose());
   }
