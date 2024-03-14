@@ -136,16 +136,16 @@ public class Swerve extends SubsystemBase {
               leftRight *= Constants.kSwerve.MAX_VELOCITY_METERS_PER_SECOND;
               rotation *= Constants.kSwerve.MAX_ANGULAR_RADIANS_PER_SECOND;
 
-              if (m_headingController.getIfSnapping()) {
-                setDrive(
-                    forwardBack,
-                    leftRight,
-                    m_headingController.getSnapHeading(),
-                    isFieldRelative,
-                    isOpenLoop);
-              } else {
-                setDrive(forwardBack, leftRight, rotation, isFieldRelative, isOpenLoop);
-              }
+              // if (m_headingController.getIfSnapping()) {
+              //   setDrive(
+              //       forwardBack,
+              //       leftRight,
+              //       m_headingController.getSnapHeading(),
+              //       isFieldRelative,
+              //       isOpenLoop);
+              // } else {
+              setDrive(forwardBack, leftRight, rotation, isFieldRelative, isOpenLoop);
+              // }
             },
             this)
         .withName("SwerveDriveCommand");

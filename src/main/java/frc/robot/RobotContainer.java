@@ -2,23 +2,23 @@ package frc.robot;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.library.LimelightHelpers;
-import frc.library.LimelightHelpers.PoseEstimate;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Hangers;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import org.growingstems.measurements.Angle;
 
 /**
@@ -78,16 +78,16 @@ public class RobotContainer {
     SmartDashboard.putNumber("Joystick Pos", joystickPos);
 
     // Vision
-    var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent()) {
-      PoseEstimate llEstimate =
-          switch (alliance.get()) {
-            case Red -> LimelightHelpers.getBotPoseEstimate_wpiRed("");
-            case Blue -> LimelightHelpers.getBotPoseEstimate_wpiBlue("");
-          };
+    // var alliance = DriverStation.getAlliance();
+    // if (alliance.isPresent()) {
+    //   PoseEstimate llEstimate =
+    //       switch (alliance.get()) {
+    //         case Red -> LimelightHelpers.getBotPoseEstimate_wpiRed("");
+    //         case Blue -> LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+    //       };
 
-      swerve.updateVision(llEstimate);
-    }
+    //   swerve.updateVision(llEstimate);
+    // }
 
     m_field.setRobotPose(swerve.getWpiPose());
   }
@@ -99,14 +99,14 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // DoubleSupplier xDriveAxis = () -> -Constants.kControls.X_DRIVE_LIMITER.calculate(
-    //     driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS));
-    // DoubleSupplier yDriveAxis = () -> -Constants.kControls.Y_DRIVE_LIMITER.calculate(
-    //     driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS));
-    // DoubleSupplier thetaDriveAxis = () -> -Constants.kControls.THETA_DRIVE_LIMITER.calculate(
-    //     driver.getRawAxis(Constants.kControls.ROTATION_AXIS));
+    DoubleSupplier xDriveAxis = () -> -Constants.kControls.X_DRIVE_LIMITER.calculate(
+        driver.getRawAxis(Constants.kControls.TRANSLATION_Y_AXIS));
+    DoubleSupplier yDriveAxis = () -> -Constants.kControls.Y_DRIVE_LIMITER.calculate(
+        driver.getRawAxis(Constants.kControls.TRANSLATION_X_AXIS));
+    DoubleSupplier thetaDriveAxis = () -> -Constants.kControls.THETA_DRIVE_LIMITER.calculate(
+        driver.getRawAxis(Constants.kControls.ROTATION_AXIS));
 
-    // swerve.setDefaultCommand(swerve.drive(xDriveAxis, yDriveAxis, thetaDriveAxis, true, true));
+    swerve.setDefaultCommand(swerve.drive(xDriveAxis, yDriveAxis, thetaDriveAxis, true, true));
 
     driver.y().onTrue(new InstantCommand(() -> swerve.resetOdometry(new Pose2d())));
 
@@ -154,18 +154,17 @@ public class RobotContainer {
     // driver.a().onTrue(m_arm.setGravCommand(() -> Voltage.volts(.03)));
     // driver.a().onFalse(m_arm.emergencyStopCommand());
 
-    // Arm Auto Controll
-    driver
-        .a()
-        .onTrue(m_arm.setPositionCommand(
-            () -> Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0))));
-    driver.b().onTrue(m_arm.setPositionCommand(() -> Angle.degrees(95.0)));
-    driver.rightBumper().onTrue(m_arm.setPositionCommand(() -> Angle.degrees(-2.0)));
+    // Arm Auto Control
+    Supplier<Command> shuffleboardPos = () ->
+        m_arm.setPositionCommand(Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0)));
+    driver.a().onTrue(new ProxyCommand(shuffleboardPos));
+    driver.b().onTrue(m_arm.setPositionCommand(Angle.degrees(95.0)));
+    driver.rightBumper().onTrue(m_arm.setPositionCommand(Angle.degrees(-2.0)));
 
     // test this
 
     // INTAKE AND SHOOT
-    // driver.a().onTrue(intake.intakeOffCommand());
+    driver.a().onTrue(intake.intakeOffCommand());
     driver
         .rightBumper()
         .onTrue(intakeCommands
