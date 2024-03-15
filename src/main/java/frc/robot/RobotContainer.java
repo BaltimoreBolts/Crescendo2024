@@ -243,6 +243,10 @@ public class RobotContainer {
     // Command resetOdometry = new InstantCommand(
     //     () -> swerve.resetOdometry(PathPlannerAuto.getStaringPoseFromAutoFile(autoName)));
     // return resetOdometry.andThen(autoName);
+    // String autoName = "Auto1";
+    // Command resetOdometry = new InstantCommand(() ->
+    //     swerve.resetOdometry(PathPlannerAuto.getStaringPoseFromAutoFile(autoName)));
+    // return resetOdometry.andThen(new PathPlannerAuto(autoName));
     return autoChooser.getSelected();
   }
 }

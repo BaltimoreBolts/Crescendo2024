@@ -58,6 +58,8 @@ public class IntakeCommands extends SequentialCommandGroup {
 
   public Command amazingIntaking3(Intake intake) {
     return (intakeNoteToBottom(intake)
+            .andThen(new WaitCommand(0.125))
+            .andThen(intakeNoteToBottom(intake))
             .andThen(intake.outtakeCommand())
             .andThen(() -> LEDlights.intakeColor()))
         .withTimeout(10);
