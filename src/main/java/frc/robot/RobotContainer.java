@@ -19,6 +19,8 @@ import frc.robot.subsystems.Hangers;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
+import frc.robot.utils.LEDlights;
+
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.growingstems.measurements.Angle;
@@ -182,11 +184,13 @@ public class RobotContainer {
         .x()
         .onTrue(m_shooter
             .shooterSpin()
+            .andThen(() -> LEDlights.shootColor())
             .andThen(new WaitCommand(1.5))
             .andThen(intake.intakeFastCommand())
             .andThen(new WaitCommand(2))
             .andThen(m_shooter.shooterOffCommand())
-            .andThen(intake.intakeOffCommand()));
+            .andThen(intake.intakeOffCommand())
+            .andThen(() -> LEDlights.normalColor()));
 
     // var blueTarget = new Vector2dU<Length>(Length.ZERO, Length.ZERO);
     // Supplier<Angle> aimAngle =

@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Intake;
+import frc.robot.utils.LEDlights;
 
 public class IntakeCommands extends SequentialCommandGroup {
 
@@ -56,6 +57,6 @@ public class IntakeCommands extends SequentialCommandGroup {
   }
 
   public Command amazingIntaking3(Intake intake) {
-    return (intakeNoteToBottom(intake).andThen(intake.outtakeCommand())).withTimeout(10);
+    return (intakeNoteToBottom(intake).andThen(intake.outtakeCommand()).andThen(() -> LEDlights.intakeColor())).withTimeout(10);
   }
 }
