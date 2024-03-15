@@ -5,31 +5,38 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 import com.pathplanner.lib.commands.*;
 import com.pathplanner.lib.path.*;
 import com.pathplanner.lib.pathfinding.*;
+import com.pathplanner.lib.*;
+import com.pathplanner.lib.util.PathPlannerLogging;
 
-// /**
-//  * This class generates auto commands.
-//  */
-// public class AutoCommands {
-//   private final Swerve swerve;
-//   private final SendableChooser<Command> dropDown;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.Swerve;
 
-//   /**
-//    * Define all auto commands.
-//    */
-//   public AutoCommands(Swerve swerve) {
-//     this.swerve = swerve;
+/**
+ * This class generates auto commands.
+ */
+public class AutoCommands {
+  // private final Swerve swerve;
+  // private final SendableChooser<Command> dropDown;
 
-//     dropDown = new SendableChooser<>();
-//     dropDown.addOption("Example", run(() -> {
-//       getCommand("Test", true);
-//     }));
+  // /**
+  //  * Define all auto commands.
+  //  */
+  // public AutoCommands(Swerve swerve) {
+  //   this.swerve = swerve;
 
-//     SmartDashboard.putData("Auto Selection", dropDown);
-//   }
+  //   dropDown = new SendableChooser<>();
+  //   dropDown.addOption("Example", run(() -> {
+  //     getCommand("Amp Auto", true);
+  //   }));
 
-//   public Command getSelectedCommand() {
-//     return dropDown.getSelected();
-//   }
+  //   SmartDashboard.putData("Auto Selection", dropDown);
+  // }
+
+  // public Command getSelectedCommand() {
+  //   return dropDown.getSelected();
+  // }
 
   // private Command getCommand(String pathName, boolean isFirstPath) {
   //   PathPlannerTrajectory traj = PathPlanner.loadPath(
@@ -57,4 +64,4 @@ import com.pathplanner.lib.pathfinding.*;
 
   //     swerve.drive(() -> 0.0, () -> 0.0, () -> 0.0, true, true));
   // }
-// }
+}

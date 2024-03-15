@@ -1,11 +1,13 @@
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -50,7 +52,8 @@ public class RobotContainer {
 
   public final Arm m_arm = new Arm();
 
-  // public final AutoCommands auto;
+  //public final AutoCommands auto;
+  private final SendableChooser<Command> autoChooser;
 
   private static final Field2d m_field = new Field2d();
 
@@ -63,6 +66,7 @@ public class RobotContainer {
     intake = new Intake();
     intakeCommands = new IntakeCommands();
 
+
     SmartDashboard.putNumber("drive/speed", 0.0);
     SmartDashboard.putNumber("drive/velocity(RPM)", 0.0);
 
@@ -71,7 +75,9 @@ public class RobotContainer {
     SmartDashboard.putNumber("Spot", 0);
     SmartDashboard.putData("Field", m_field);
 
-    // auto = new AutoCommands(swerve);
+    //auto = new AutoCommands(swerve);
+    autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
+    SmartDashboard.putData("Auto Mode", autoChooser);
 
     // Configure button bindings
     configureButtonBindings();
@@ -162,6 +168,13 @@ public class RobotContainer {
     // driver.a().onTrue(m_arm.setGravCommand(() -> Voltage.volts(.03)));
     // driver.a().onFalse(m_arm.emergencyStopCommand());
 
+
+    // LT - aim subwoofer
+    // RT - shoot
+    // LB - outake
+    // RB - intake
+    // B - amp arm position
+
     // Arm Auto Control
     Supplier<Command> shuffleboardPos = () ->
         m_arm.setPositionCommand(Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0)));
@@ -169,8 +182,6 @@ public class RobotContainer {
     driver.b().onTrue(m_arm.setPositionCommand(Angle.degrees(100.0)));
     driver.rightBumper().onTrue(m_arm.setPositionCommand(Angle.degrees(-2.0)));
     driver.leftTrigger(0.5).onTrue(m_arm.setPositionCommand(Angle.degrees(15)));
-
-    // test this
 
     // INTAKE AND SHOOT
     driver.a().onTrue(intake.intakeOffCommand());
@@ -182,7 +193,7 @@ public class RobotContainer {
             .andThen(intake.intakeOffCommand()));
     driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
     driver
-        .x()//.and(() -> !m_arm.isAmpPos())
+        .rightTrigger(0.5)
         .onTrue(m_shooter
             .shooterSpinSpeaker()
             .andThen(() -> LEDlights.shootColor())
@@ -192,17 +203,17 @@ public class RobotContainer {
             .andThen(m_shooter.shooterOffCommand())
             .andThen(intake.intakeOffCommand())
             .andThen(() -> LEDlights.normalColor()));
-    // driver
-    //     .x().and(() -> m_arm.isAmpPos())
-    //     .onTrue(m_shooter
-    //         .shooterSpinAmp()
-    //         .andThen(() -> LEDlights.shootColor())
-    //         .andThen(new WaitCommand(1.5))
-    //         .andThen(intake.intakeFastCommand())
-    //         .andThen(new WaitCommand(2))
-    //         .andThen(m_shooter.shooterOffCommand())
-    //         .andThen(intake.intakeOffCommand())
-    //         .andThen(() -> LEDlights.normalColor()));
+    driver
+        .x()
+        .onTrue(m_shooter
+            .shooterSpinAmp()
+            .andThen(() -> LEDlights.shootColor())
+            .andThen(new WaitCommand(1.5))
+            .andThen(intake.intakeFastCommand())
+            .andThen(new WaitCommand(2))
+            .andThen(m_shooter.shooterOffCommand())
+            .andThen(intake.intakeOffCommand())
+            .andThen(() -> LEDlights.normalColor()));
 
     // var blueTarget = new Vector2dU<Length>(Length.ZERO, Length.ZERO);
     // Supplier<Angle> aimAngle =
@@ -218,9 +229,10 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    String autoName = "Auto1";
-    Command resetOdometry = new InstantCommand(
-        () -> swerve.resetOdometry(PathPlannerAuto.getStaringPoseFromAutoFile(autoName)));
-    return resetOdometry.andThen(new PathPlannerAuto(autoName));
+    // String autoName = autoChooser.getSelected();
+    // Command resetOdometry = new InstantCommand(
+    //     () -> swerve.resetOdometry(PathPlannerAuto.getStaringPoseFromAutoFile(autoName)));
+    // return resetOdometry.andThen(autoName);
+    return autoChooser.getSelected();
   }
 }

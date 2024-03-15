@@ -18,6 +18,8 @@ import frc.robot.utils.LEDlights;
  * project.
  */
 public class Robot extends TimedRobot {
+  private Command m_autonomousCommand;
+
   private RobotContainer m_robotContainer;
   private Joystick m_joystick = new Joystick(0);
 
@@ -64,9 +66,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    Command autoCommand = m_robotContainer.getAutonomousCommand();
-    if (autoCommand != null) {
-      autoCommand.schedule();
+    Command m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.schedule();
     }
   }
 
