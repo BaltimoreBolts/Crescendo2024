@@ -93,9 +93,9 @@ public class RobotContainer {
     //   swerve.updateVision(llEstimate);
     // }
     
-    LimelightHelpers.setCameraMode_Driver("limelight");
-    //LimelightHelpers.setCameraMode_Processor("limelight");
-    LimelightHelpers.setStreamMode_PiPMain("limelight");
+    // LimelightHelpers.setCameraMode_Driver("limelight");
+    // //LimelightHelpers.setCameraMode_Processor("limelight");
+    // LimelightHelpers.setStreamMode_PiPMain("limelight");
 
     m_field.setRobotPose(swerve.getWpiPose());
   }
@@ -166,8 +166,9 @@ public class RobotContainer {
     Supplier<Command> shuffleboardPos = () ->
         m_arm.setPositionCommand(Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0)));
     driver.a().onTrue(new ProxyCommand(shuffleboardPos));
-    driver.b().onTrue(m_arm.setPositionCommand(Angle.degrees(95.0)));
+    driver.b().onTrue(m_arm.setPositionCommand(Angle.degrees(100.0)));
     driver.rightBumper().onTrue(m_arm.setPositionCommand(Angle.degrees(-2.0)));
+    driver.leftTrigger(0.5).onTrue(m_arm.setPositionCommand(Angle.degrees(15)));
 
     // test this
 
@@ -181,9 +182,9 @@ public class RobotContainer {
             .andThen(intake.intakeOffCommand()));
     driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
     driver
-        .x()
+        .x()//.and(() -> !m_arm.isAmpPos())
         .onTrue(m_shooter
-            .shooterSpin()
+            .shooterSpinSpeaker()
             .andThen(() -> LEDlights.shootColor())
             .andThen(new WaitCommand(1.5))
             .andThen(intake.intakeFastCommand())
@@ -191,6 +192,17 @@ public class RobotContainer {
             .andThen(m_shooter.shooterOffCommand())
             .andThen(intake.intakeOffCommand())
             .andThen(() -> LEDlights.normalColor()));
+    // driver
+    //     .x().and(() -> m_arm.isAmpPos())
+    //     .onTrue(m_shooter
+    //         .shooterSpinAmp()
+    //         .andThen(() -> LEDlights.shootColor())
+    //         .andThen(new WaitCommand(1.5))
+    //         .andThen(intake.intakeFastCommand())
+    //         .andThen(new WaitCommand(2))
+    //         .andThen(m_shooter.shooterOffCommand())
+    //         .andThen(intake.intakeOffCommand())
+    //         .andThen(() -> LEDlights.normalColor()));
 
     // var blueTarget = new Vector2dU<Length>(Length.ZERO, Length.ZERO);
     // Supplier<Angle> aimAngle =

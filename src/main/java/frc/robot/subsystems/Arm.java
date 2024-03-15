@@ -42,7 +42,7 @@ public class Arm extends SubsystemBase {
 
   private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(140.0);
   private static final AngularAcceleration k_acceleration =
-      AngularAcceleration.degreesPerSecondSquared(100.0);
+      AngularAcceleration.degreesPerSecondSquared(40); //100 
 
   private static final Constraints k_profiledConstraints = new Constraints(
       k_cruiseVelocity.asRadiansPerSecond(), k_acceleration.asRadiansPerSecondSquared());
@@ -64,12 +64,12 @@ public class Arm extends SubsystemBase {
   private static final VoltagePerFrequency k_velocityCompensation =
       Voltage.volts(2.25).div(new AngularVelocity(1.0)); // 2.25, 1.0
 
-  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-250.3);
+  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-306.0);
 
   private static final Angle k_reverseAbsoluteHardStop = Angle.degrees(-2.0);
 
   private static final RangeU<Angle> k_safeRange =
-      new RangeU<>(k_reverseAbsoluteHardStop, Angle.degrees(95.0));
+      new RangeU<>(k_reverseAbsoluteHardStop, Angle.degrees(100.0));
 
   private static final Voltage k_maxVoltage = Voltage.volts(12.0);
   private static final RangeU<Voltage> k_voltageRange =
@@ -77,7 +77,7 @@ public class Arm extends SubsystemBase {
 
   private Angle m_relOffset = Angle.ZERO;
 
-  private static final double k_anglePerSensorUnit = 16.0 / 32.0;
+  private static final double k_anglePerSensorUnit = 24.0 / 48.0;
 
   private final Timer m_trajectoryTimer = new WpiTimeSource().createTimer();
   private Angle m_requestAngleGoal = Angle.ZERO;
@@ -217,6 +217,10 @@ public class Arm extends SubsystemBase {
 
   private boolean isAtPosition(Angle goal) {
     return goal.sub(getRelativePosition()).abs().lt(k_allowableError);
+  }
+
+  public boolean isAmpPos() {
+    return getRelativePosition().gt(k_slowThreshold);
   }
 
   private Command setPositionCommand(Angle position, SpeedMode speedMode) {

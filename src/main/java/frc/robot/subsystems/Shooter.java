@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import frc.robot.subsystems.Arm;
+
 public class Shooter extends SubsystemBase {
 
   public double power = 0;
@@ -29,6 +31,9 @@ public class Shooter extends SubsystemBase {
 
     this.shooterMotor2.follow(this.shooterMotor1, false);
 
+    // this.shooterMotor1.setOpenLoopRampRate(0.5);
+    // this.shooterMotor2.setOpenLoopRampRate(0.5);
+
     this.shooterMotor1.burnFlash();
     this.shooterMotor2.burnFlash();
 
@@ -38,15 +43,21 @@ public class Shooter extends SubsystemBase {
   @Override
   public void periodic() {
     this.shooterMotor1.set(power);
+    // this.shooterMotor2.set(-power);
   }
 
   public Command shooterOffCommand() {
     return new InstantCommand(() -> shooterOff());
   }
 
-  public Command shooterSpin() {
+  public Command shooterSpinSpeaker() {
     return new InstantCommand(() -> shooterAtSpeed());
   }
+
+  public Command shooterSpinAmp() {
+    return new InstantCommand(() -> shooterAmpSpeed());
+  }
+
 
   public void shooterOff() {
     this.power = 0;
@@ -54,6 +65,9 @@ public class Shooter extends SubsystemBase {
 
   public void shooterAtSpeed() {
     this.power = 0.6;
-    // this.power = SmartDashboard.getNumber("shooter/Speed", 0.0);
+  }
+
+  public void shooterAmpSpeed() {
+    this.power = 0.3;
   }
 }
