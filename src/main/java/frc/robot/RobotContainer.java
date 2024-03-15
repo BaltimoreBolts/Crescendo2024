@@ -1,6 +1,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -65,6 +66,17 @@ public class RobotContainer {
     swerve = new Swerve();
     intake = new Intake();
     intakeCommands = new IntakeCommands();
+
+    NamedCommands.registerCommand("Arm Up", m_arm.setPositionCommand(Angle.degrees(15)));
+    NamedCommands.registerCommand("Shoot", m_shooter
+            .shooterSpinSpeaker()
+            .andThen(new WaitCommand(1.5))
+            .andThen(intake.intakeFastCommand())
+            .andThen(new WaitCommand(2))
+            .andThen(m_shooter.shooterOffCommand())
+            .andThen(intake.intakeOffCommand()));
+    NamedCommands.registerCommand("Arm Down", m_arm.setPositionCommand(Angle.degrees(0)));
+
 
 
     SmartDashboard.putNumber("drive/speed", 0.0);
