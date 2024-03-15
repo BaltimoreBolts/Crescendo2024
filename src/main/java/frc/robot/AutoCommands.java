@@ -5,17 +5,8 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 import com.pathplanner.lib.commands.*;
 import com.pathplanner.lib.path.*;
 import com.pathplanner.lib.pathfinding.*;
-import com.pathplanner.lib.*;
-import com.pathplanner.lib.util.PathPlannerLogging;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Swerve;
-
-/**
- * This class generates auto commands.
- */
+/** This class generates auto commands. */
 public class AutoCommands {
   // private final Swerve swerve;
   // private final SendableChooser<Command> dropDown;

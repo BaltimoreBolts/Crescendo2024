@@ -1,8 +1,5 @@
 package frc.robot;
 
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -60,14 +57,14 @@ public class Constants {
         new Translation2d(WHEEL_BASE / 2.0, -TRACK_WIDTH / 2.0) // 3 - front right
         );
 
-    // public static final HolonomicPathFollowerConfig pathFollowerConfig = new HolonomicPathFollowerConfig(
-    //   new PIDConstants(5.0, 0, 0), // Translation constants 
-    //   new PIDConstants(5.0, 0, 0), // Rotation constants 
-    //   4.5, 
-    //   0.6, // Drive base radius (distance from center to furthest module) 
+    // public static final HolonomicPathFollowerConfig pathFollowerConfig = new
+    // HolonomicPathFollowerConfig(
+    //   new PIDConstants(5.0, 0, 0), // Translation constants
+    //   new PIDConstants(5.0, 0, 0), // Rotation constants
+    //   4.5,
+    //   0.6, // Drive base radius (distance from center to furthest module)
     //   new ReplanningConfig()
     // );
-
 
     public static final double DRIVE_GEAR_RATIO = 6.75 / 1.0; // 6.75:1
     public static final double DRIVE_ROTATIONS_TO_METERS = WHEEL_CIRCUMFERENCE / DRIVE_GEAR_RATIO;

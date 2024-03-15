@@ -42,7 +42,7 @@ public class Arm extends SubsystemBase {
 
   private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(140.0);
   private static final AngularAcceleration k_acceleration =
-      AngularAcceleration.degreesPerSecondSquared(40); //100 
+      AngularAcceleration.degreesPerSecondSquared(40); // 100
 
   private static final Constraints k_profiledConstraints = new Constraints(
       k_cruiseVelocity.asRadiansPerSecond(), k_acceleration.asRadiansPerSecondSquared());

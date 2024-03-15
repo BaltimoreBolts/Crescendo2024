@@ -8,8 +8,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.robot.subsystems.Arm;
-
 public class Shooter extends SubsystemBase {
 
   public double power = 0;
@@ -57,7 +55,6 @@ public class Shooter extends SubsystemBase {
   public Command shooterSpinAmp() {
     return new InstantCommand(() -> shooterAmpSpeed());
   }
-
 
   public void shooterOff() {
     this.power = 0;

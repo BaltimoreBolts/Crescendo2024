@@ -2,9 +2,7 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -15,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.library.LimelightHelpers;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Hangers;
@@ -23,7 +20,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.LEDlights;
-
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.growingstems.measurements.Angle;
@@ -53,7 +49,7 @@ public class RobotContainer {
 
   public final Arm m_arm = new Arm();
 
-  //public final AutoCommands auto;
+  // public final AutoCommands auto;
   private final SendableChooser<Command> autoChooser;
 
   private static final Field2d m_field = new Field2d();
@@ -67,17 +63,20 @@ public class RobotContainer {
     intake = new Intake();
     intakeCommands = new IntakeCommands();
 
-    NamedCommands.registerCommand("Arm Up", m_arm.setPositionCommand(Angle.degrees(15)));
-    NamedCommands.registerCommand("Shoot", m_shooter
-            .shooterSpinSpeaker()
-            .andThen(new WaitCommand(1.5))
-            .andThen(intake.intakeFastCommand())
-            .andThen(new WaitCommand(2))
-            .andThen(m_shooter.shooterOffCommand())
-            .andThen(intake.intakeOffCommand()));
-    NamedCommands.registerCommand("Arm Down", m_arm.setPositionCommand(Angle.degrees(0)));
-
-
+    NamedCommands.registerCommand(
+        "Arm Up", (m_arm.setPositionCommand(Angle.degrees(15))).withTimeout(3.5));
+    NamedCommands.registerCommand(
+        "Shoot",
+        (m_shooter
+                .shooterSpinSpeaker()
+                .andThen(new WaitCommand(1.5))
+                .andThen(intake.intakeFastCommand())
+                .andThen(new WaitCommand(2))
+                .andThen(m_shooter.shooterOffCommand())
+                .andThen(intake.intakeOffCommand()))
+            .withTimeout(5.0));
+    NamedCommands.registerCommand(
+        "Arm Down", (m_arm.setPositionCommand(Angle.degrees(0))).withTimeout(2.0));
 
     SmartDashboard.putNumber("drive/speed", 0.0);
     SmartDashboard.putNumber("drive/velocity(RPM)", 0.0);
@@ -87,7 +86,7 @@ public class RobotContainer {
     SmartDashboard.putNumber("Spot", 0);
     SmartDashboard.putData("Field", m_field);
 
-    //auto = new AutoCommands(swerve);
+    // auto = new AutoCommands(swerve);
     autoChooser = AutoBuilder.buildAutoChooser(); // Default auto will be `Commands.none()`
     SmartDashboard.putData("Auto Mode", autoChooser);
 
@@ -110,7 +109,7 @@ public class RobotContainer {
 
     //   swerve.updateVision(llEstimate);
     // }
-    
+
     // LimelightHelpers.setCameraMode_Driver("limelight");
     // //LimelightHelpers.setCameraMode_Processor("limelight");
     // LimelightHelpers.setStreamMode_PiPMain("limelight");
@@ -179,7 +178,6 @@ public class RobotContainer {
 
     // driver.a().onTrue(m_arm.setGravCommand(() -> Voltage.volts(.03)));
     // driver.a().onFalse(m_arm.emergencyStopCommand());
-
 
     // LT - aim subwoofer
     // RT - shoot

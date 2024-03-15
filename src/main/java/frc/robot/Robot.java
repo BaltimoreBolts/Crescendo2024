@@ -18,7 +18,7 @@ import frc.robot.utils.LEDlights;
  * project.
  */
 public class Robot extends TimedRobot {
-  //private Command m_autonomousCommand;
+  // private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
   private Joystick m_joystick = new Joystick(0);
@@ -30,10 +30,10 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
-    
+
     LEDlights.init();
     LEDlights.normalColor();
-    
+
     DataLogManager.start();
   }
 
