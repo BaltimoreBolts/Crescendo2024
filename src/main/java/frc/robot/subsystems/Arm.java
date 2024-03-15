@@ -7,6 +7,7 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -121,7 +122,11 @@ public class Arm extends SubsystemBase {
   @Override
   public void periodic() {
     // Check if we just switched to position control
-    var positionControlStarted = m_startPositionControl.update(m_runPositionControl);
+    var positionControlStarted = m_startPositionControl.update(m_runPositionControl || DriverStation.isEnabled());
+
+    if (positionControlStarted) {
+      m_positionPid.reset(getRelativePosition().asRadians());
+    }
 
     if (m_runPositionControl) {
       m_angleGoal = m_requestAngleGoal;
