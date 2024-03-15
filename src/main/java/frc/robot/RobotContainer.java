@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.library.LimelightHelpers;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Hangers;
@@ -110,9 +111,10 @@ public class RobotContainer {
     //   swerve.updateVision(llEstimate);
     // }
 
-    // LimelightHelpers.setCameraMode_Driver("limelight");
+    LimelightHelpers.setStreamMode_Standard("limelight");
+
     // //LimelightHelpers.setCameraMode_Processor("limelight");
-    // LimelightHelpers.setStreamMode_PiPMain("limelight");
+    // LimelightHelpers.setStreamMode_PiPSecondary("limelight");
 
     m_field.setRobotPose(swerve.getWpiPose());
   }
