@@ -43,7 +43,7 @@ public class Arm extends SubsystemBase {
 
   private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(140.0);
   private static final AngularAcceleration k_acceleration =
-      AngularAcceleration.degreesPerSecondSquared(40); // 100
+      AngularAcceleration.degreesPerSecondSquared(60); // 100
 
   private static final Constraints k_profiledConstraints = new Constraints(
       k_cruiseVelocity.asRadiansPerSecond(), k_acceleration.asRadiansPerSecondSquared());
@@ -65,7 +65,7 @@ public class Arm extends SubsystemBase {
   private static final VoltagePerFrequency k_velocityCompensation =
       Voltage.volts(2.25).div(new AngularVelocity(1.0)); // 2.25, 1.0
 
-  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-271.0);
+  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-255.6);
 
   private static final Angle k_reverseAbsoluteHardStop = Angle.degrees(-2.0);
 
@@ -122,7 +122,8 @@ public class Arm extends SubsystemBase {
   @Override
   public void periodic() {
     // Check if we just switched to position control
-    var positionControlStarted = m_startPositionControl.update(m_runPositionControl || DriverStation.isEnabled());
+    var positionControlStarted =
+        m_startPositionControl.update(m_runPositionControl || DriverStation.isEnabled());
 
     if (positionControlStarted) {
       m_positionPid.reset(getRelativePosition().asRadians());

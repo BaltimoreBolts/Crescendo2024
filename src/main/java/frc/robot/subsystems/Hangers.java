@@ -6,6 +6,7 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.LEDlights;
@@ -42,18 +43,21 @@ public class Hangers extends SubsystemBase {
     SmartDashboard.putNumber("Right Enc", m_rightHangerEncoder.getPosition());
   }
 
-  //   private void spinLeftUp(){
-  //     m_hangerLeftmotor.set(.1);
-  //   }
-  //   private void spinLeftDown(){
-  //     m_hangerLeftmotor.set(-.1);
-  //   }
-  //   private void spinRightUp(){
-  //     m_hangerLeftmotor.set(.1);
-  //   }
-  //   private void spinRightDown(){
-  //     m_hangerLeftmotor.set(-.1);
-  //   }
+  private void spinLeftUp() {
+    m_hangerLeftmotor.set(.1);
+  }
+
+  private void spinLeftDown() {
+    m_hangerLeftmotor.set(-.1);
+  }
+
+  private void spinRightUp() {
+    m_hangerLeftmotor.set(.1);
+  }
+
+  private void spinRightDown() {
+    m_hangerLeftmotor.set(-.1);
+  }
 
   private boolean getLeftLimit() {
     return !m_Lefthall.get();
@@ -99,5 +103,21 @@ public class Hangers extends SubsystemBase {
           setPower(leftVoltage.get(), rightVoltage.get());
         },
         this);
+  }
+
+  public Command spinRightUpCommand() {
+    return new InstantCommand(() -> spinRightUp());
+  }
+
+  public Command spinLeftUpCommand() {
+    return new InstantCommand(() -> spinLeftUp());
+  }
+
+  public Command spinRightDownCommand() {
+    return new InstantCommand(() -> spinRightDown());
+  }
+
+  public Command spinLeftDownCommand() {
+    return new InstantCommand(() -> spinLeftDown());
   }
 }

@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.83,
-      "y": 6.64
+      "x": 0.77,
+      "y": 4.47
     },
-    "rotation": 60.0
+    "rotation": -60.0
   },
   "command": {
     "type": "sequential",
@@ -15,12 +15,6 @@
           "type": "named",
           "data": {
             "name": "Arm Up"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
           }
         },
         {
@@ -38,7 +32,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Copy of Amp Path"
+            "pathName": "Copy of Source Path"
           }
         }
       ]

@@ -38,9 +38,9 @@ public class Intake extends SubsystemBase {
   final double intakeFastSpeed = 0.55;
   final double intakeMediumSpeed = 0.4;
 
-  final double intakeSlowSpeed = 0.10;
+  final double intakeSlowSpeed = 0.25;
 
-  final double outakeSpeed = 0.1;
+  final double outakeSpeed = 0.25;
   final double outakeFastSpeed = 0.5;
 
   @Override

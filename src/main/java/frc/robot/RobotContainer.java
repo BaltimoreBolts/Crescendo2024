@@ -158,10 +158,14 @@ public class RobotContainer {
     driver2.y().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
 
     // easing up sides -- to level hang on non-level chain
-    driver2.rightBumper().onTrue(m_hangers.setPowerCommand(() -> 0.0, () -> 1.0));
-    driver2.rightBumper().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
-    driver2.leftBumper().onTrue(m_hangers.setPowerCommand(() -> 1.0, () -> 0.0));
-    driver2.leftBumper().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
+    // driver2.rightBumper().onTrue(m_hangers.setPowerCommand(() -> 0.0, () -> 1.0));
+    // driver2.rightBumper().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
+    // driver2.leftBumper().onTrue(m_hangers.setPowerCommand(() -> 1.0, () -> 0.0));
+    // driver2.leftBumper().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
+    // driver2.rightTrigger(0.5).onTrue(m_hangers.spinRightDownCommand());
+    // driver2.rightTrigger().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> -1.0));
+    // driver2.leftTrigger(0.5).onTrue(m_hangers.spinLeftDownCommand());
+    // driver2.leftTrigger().onFalse(m_hangers.setPowerCommand(() -> -1.0, () -> 0.0));
 
     // reset hangers encoders
     driver2.b().onTrue(new InstantCommand(() -> m_hangers.resetEncs()));
@@ -169,6 +173,13 @@ public class RobotContainer {
     // small intake control for co-driver
     driver2.pov(0).onTrue(intake.intakeSlowCommand());
     driver2.pov(0).onFalse(intake.intakeOffCommand());
+
+    driver2
+        .pov(90)
+        .onTrue(intakeCommands
+            .amazingIntaking3(intake)
+            .andThen(new WaitCommand(0.25))
+            .andThen(intake.intakeOffCommand()));
 
     driver2.pov(180).onTrue(intake.outtakeCommand());
     driver2.pov(180).onFalse(intake.intakeOffCommand());
@@ -195,13 +206,16 @@ public class RobotContainer {
     driver.rightBumper().onTrue(m_arm.setPositionCommand(Angle.degrees(-2.0)));
     driver.leftTrigger(0.5).onTrue(m_arm.setPositionCommand(Angle.degrees(15)));
 
+    // Stop arm
+    driver.start().and(driver.back()).onTrue(m_arm.emergencyStopCommand());
+
     // INTAKE AND SHOOT
     driver.a().onTrue(intake.intakeOffCommand());
     driver
         .rightBumper()
         .onTrue(intakeCommands
             .amazingIntaking3(intake)
-            .andThen(new WaitCommand(0.5))
+            .andThen(new WaitCommand(0.25))
             .andThen(intake.intakeOffCommand()));
     driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
     driver
