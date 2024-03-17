@@ -38,12 +38,12 @@ public class Arm extends SubsystemBase {
   private final DutyCycleEncoder m_AbsEncoder = new DutyCycleEncoder(4);
   private final RelativeEncoder m_RelativeEncoder;
 
-  private static final Angle k_slowThreshold = Angle.degrees(70.0);
+  private static final Angle k_slowThreshold = Angle.degrees(50.0);
   private static final Angle k_allowableError = Angle.degrees(2.0);
 
-  private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(140.0);
+  private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(80.0);
   private static final AngularAcceleration k_acceleration =
-      AngularAcceleration.degreesPerSecondSquared(60); // 100
+      AngularAcceleration.degreesPerSecondSquared(45); // 100
 
   private static final Constraints k_profiledConstraints = new Constraints(
       k_cruiseVelocity.asRadiansPerSecond(), k_acceleration.asRadiansPerSecondSquared());
@@ -57,7 +57,7 @@ public class Arm extends SubsystemBase {
       k_cruiseVelocitySlow.asRadiansPerSecond(), k_accelerationSlow.asRadiansPerSecondSquared());
 
   private final ProfiledPIDController m_positionPid =
-      new ProfiledPIDController(6.0, 0.0, 0.0, k_profiledConstraints);
+      new ProfiledPIDController(3.0, 0.0, 0.0, k_profiledConstraints);
 
   private static final Voltage k_gravityCompensation = Voltage.volts(0.2);
 

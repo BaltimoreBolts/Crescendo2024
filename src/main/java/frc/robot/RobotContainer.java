@@ -65,7 +65,7 @@ public class RobotContainer {
     intakeCommands = new IntakeCommands();
 
     NamedCommands.registerCommand(
-        "Arm Up", (m_arm.setPositionCommand(Angle.degrees(15))).withTimeout(3.5));
+        "Arm Up", (m_arm.setPositionCommand(Angle.degrees(12))).withTimeout(3.5));
     NamedCommands.registerCommand(
         "Shoot",
         (m_shooter
@@ -78,6 +78,12 @@ public class RobotContainer {
             .withTimeout(5.0));
     NamedCommands.registerCommand(
         "Arm Down", (m_arm.setPositionCommand(Angle.degrees(0))).withTimeout(2.0));
+
+    NamedCommands.registerCommand(
+        "Intake", (intakeCommands
+            .amazingIntaking3(intake)
+            .andThen(new WaitCommand(0.25))
+            .andThen(intake.intakeOffCommand())));
 
     SmartDashboard.putNumber("drive/speed", 0.0);
     SmartDashboard.putNumber("drive/velocity(RPM)", 0.0);
@@ -158,10 +164,10 @@ public class RobotContainer {
     driver2.y().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
 
     // easing up sides -- to level hang on non-level chain
-    // driver2.rightBumper().onTrue(m_hangers.setPowerCommand(() -> 0.0, () -> 1.0));
-    // driver2.rightBumper().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
-    // driver2.leftBumper().onTrue(m_hangers.setPowerCommand(() -> 1.0, () -> 0.0));
-    // driver2.leftBumper().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
+    driver2.rightBumper().onTrue(m_hangers.setPowerCommand(() -> 0.0, () -> 1.0));
+    driver2.rightBumper().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
+    driver2.leftBumper().onTrue(m_hangers.setPowerCommand(() -> 1.0, () -> 0.0));
+    driver2.leftBumper().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> 0.0));
     // driver2.rightTrigger(0.5).onTrue(m_hangers.spinRightDownCommand());
     // driver2.rightTrigger().onFalse(m_hangers.setPowerCommand(() -> 0.0, () -> -1.0));
     // driver2.leftTrigger(0.5).onTrue(m_hangers.spinLeftDownCommand());

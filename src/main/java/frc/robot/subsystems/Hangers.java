@@ -30,6 +30,9 @@ public class Hangers extends SubsystemBase {
     m_hangerRightmotor.setInverted(true);
     m_hangerLeftmotor.setInverted(false);
 
+    m_hangerRightmotor.burnFlash();
+    m_hangerLeftmotor.burnFlash();
+
     m_rightHangerEncoder = m_hangerRightmotor.getEncoder();
     m_leftHangerEncoder = m_hangerLeftmotor.getEncoder();
   }
