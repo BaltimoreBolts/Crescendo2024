@@ -4,8 +4,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
+import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -21,7 +24,8 @@ public class Robot extends TimedRobot {
   // private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-  private Joystick m_joystick = new Joystick(0);
+  // private Joystick m_joystick = new Joystick(0);
+  private UsbCamera fishEye;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -35,6 +39,10 @@ public class Robot extends TimedRobot {
     LEDlights.normalColor();
 
     DataLogManager.start();
+
+    fishEye = CameraServer.startAutomaticCapture();
+    fishEye.setVideoMode(PixelFormat.kYUYV, 320, 240, 10);
+    fishEye.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
   }
 
   /**

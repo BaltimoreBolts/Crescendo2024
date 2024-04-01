@@ -65,22 +65,23 @@ public class RobotContainer {
     intakeCommands = new IntakeCommands();
 
     NamedCommands.registerCommand(
-        "Arm Up", (m_arm.setPositionCommand(Angle.degrees(12))).withTimeout(3.5));
+        "Arm Up", (m_arm.setPositionCommand(Angle.degrees(14))).withTimeout(3.5));
     NamedCommands.registerCommand(
         "Shoot",
         (m_shooter
                 .shooterSpinSpeaker()
-                .andThen(new WaitCommand(1.5))
+                .andThen(new WaitCommand(1.125))
                 .andThen(intake.intakeFastCommand())
-                .andThen(new WaitCommand(2))
+                .andThen(new WaitCommand(1))
                 .andThen(m_shooter.shooterOffCommand())
                 .andThen(intake.intakeOffCommand()))
             .withTimeout(5.0));
     NamedCommands.registerCommand(
-        "Arm Down", (m_arm.setPositionCommand(Angle.degrees(0))).withTimeout(2.0));
+        "Arm Down", (m_arm.setPositionCommand(Angle.degrees(-4))).withTimeout(2.0));
 
     NamedCommands.registerCommand(
-        "Intake", (intakeCommands
+        "Intake",
+        (intakeCommands
             .amazingIntaking3(intake)
             .andThen(new WaitCommand(0.25))
             .andThen(intake.intakeOffCommand())));
@@ -187,8 +188,8 @@ public class RobotContainer {
             .andThen(new WaitCommand(0.25))
             .andThen(intake.intakeOffCommand()));
 
-    driver2.pov(180).onTrue(intake.outtakeCommand());
-    driver2.pov(180).onFalse(intake.intakeOffCommand());
+    driver2.pov(180).onTrue(intake.outtakeCommand().alongWith(m_shooter.shooterOutakeCommand()));
+    driver2.pov(180).onFalse(intake.intakeOffCommand().alongWith(m_shooter.shooterOffCommand()));
 
     // ARM Manual Control
     // driver.b().onTrue(m_arm.setPowerCommand(() -> Voltage.volts(2.0)
@@ -208,7 +209,7 @@ public class RobotContainer {
     Supplier<Command> shuffleboardPos = () ->
         m_arm.setPositionCommand(Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0)));
     driver.a().onTrue(new ProxyCommand(shuffleboardPos));
-    driver.b().onTrue(m_arm.setPositionCommand(Angle.degrees(100.0)));
+    driver.b().onTrue(m_arm.setPositionCommand(Angle.degrees(95.0)));
     driver.rightBumper().onTrue(m_arm.setPositionCommand(Angle.degrees(-2.0)));
     driver.leftTrigger(0.5).onTrue(m_arm.setPositionCommand(Angle.degrees(15)));
 
@@ -217,19 +218,19 @@ public class RobotContainer {
 
     // INTAKE AND SHOOT
     driver.a().onTrue(intake.intakeOffCommand());
-    driver
-        .rightBumper()
-        .onTrue(intakeCommands
-            .amazingIntaking3(intake)
-            .andThen(new WaitCommand(0.25))
-            .andThen(intake.intakeOffCommand()));
+    // driver
+    //     .rightBumper()
+    //     .onTrue(intakeCommands
+    //         .amazingIntaking3(intake)
+    //         .andThen(new WaitCommand(0.125))
+    //         .andThen(intake.intakeOffCommand()));
     driver.leftBumper().onTrue(intakeCommands.outakeNoteTime(intake));
     driver
         .rightTrigger(0.5)
         .onTrue(m_shooter
             .shooterSpinSpeaker()
             .andThen(() -> LEDlights.shootColor())
-            .andThen(new WaitCommand(1.5))
+            .andThen(new WaitCommand(1.25))
             .andThen(intake.intakeFastCommand())
             .andThen(new WaitCommand(2))
             .andThen(m_shooter.shooterOffCommand())
@@ -240,7 +241,7 @@ public class RobotContainer {
         .onTrue(m_shooter
             .shooterSpinAmp()
             .andThen(() -> LEDlights.shootColor())
-            .andThen(new WaitCommand(1.5))
+            .andThen(new WaitCommand(0.5))
             .andThen(intake.intakeFastCommand())
             .andThen(new WaitCommand(2))
             .andThen(m_shooter.shooterOffCommand())

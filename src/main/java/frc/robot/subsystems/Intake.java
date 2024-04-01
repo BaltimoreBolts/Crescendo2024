@@ -35,13 +35,13 @@ public class Intake extends SubsystemBase {
     noteAtShooter = new DigitalInput(1);
   }
 
-  final double intakeFastSpeed = 0.85;
-  final double intakeMediumSpeed = 0.4;
+  final double intakeFastSpeed = -0.52;
+  final double intakeMediumSpeed = -0.4;
 
-  final double intakeSlowSpeed = 0.25;
+  final double intakeSlowSpeed = -0.25;
 
-  final double outakeSpeed = 0.25;
-  final double outakeFastSpeed = 0.5;
+  final double outakeSpeed = -0.17;
+  final double outakeFastSpeed = -0.5;
 
   @Override
   public void periodic() {

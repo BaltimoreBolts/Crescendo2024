@@ -41,36 +41,36 @@ public class Arm extends SubsystemBase {
   private static final Angle k_slowThreshold = Angle.degrees(50.0);
   private static final Angle k_allowableError = Angle.degrees(2.0);
 
-  private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(80.0);
+  private static final AngularVelocity k_cruiseVelocity = AngularVelocity.degreesPerSecond(100);
   private static final AngularAcceleration k_acceleration =
-      AngularAcceleration.degreesPerSecondSquared(45); // 100
+      AngularAcceleration.degreesPerSecondSquared(75); // 100
 
   private static final Constraints k_profiledConstraints = new Constraints(
       k_cruiseVelocity.asRadiansPerSecond(), k_acceleration.asRadiansPerSecondSquared());
 
   private static final AngularVelocity k_cruiseVelocitySlow =
-      AngularVelocity.degreesPerSecond(20.0);
+      AngularVelocity.degreesPerSecond(30.0); // 20
   private static final AngularAcceleration k_accelerationSlow =
-      AngularAcceleration.degreesPerSecondSquared(10.0);
+      AngularAcceleration.degreesPerSecondSquared(20.0); // 10
 
   private static final Constraints k_profiledConstraintsSlow = new Constraints(
       k_cruiseVelocitySlow.asRadiansPerSecond(), k_accelerationSlow.asRadiansPerSecondSquared());
 
   private final ProfiledPIDController m_positionPid =
-      new ProfiledPIDController(3.0, 0.0, 0.0, k_profiledConstraints);
+      new ProfiledPIDController(1.1, 0.0, 0.0, k_profiledConstraints); // 3.0
 
-  private static final Voltage k_gravityCompensation = Voltage.volts(0.2);
+  private static final Voltage k_gravityCompensation = Voltage.volts(0.15);
 
   /** Voltage per Frequency (Voltage per AngularVelocity) */
   private static final VoltagePerFrequency k_velocityCompensation =
       Voltage.volts(2.25).div(new AngularVelocity(1.0)); // 2.25, 1.0
 
-  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-255.6);
+  private static final Angle k_reverseRawAbsoluteHardStop_SU = Angle.degrees(-269.0);
 
   private static final Angle k_reverseAbsoluteHardStop = Angle.degrees(-2.0);
 
   private static final RangeU<Angle> k_safeRange =
-      new RangeU<>(k_reverseAbsoluteHardStop, Angle.degrees(100.0));
+      new RangeU<>(Angle.degrees(-4.0), Angle.degrees(95.0)); // k_reverseAbsoluteHardStop
 
   private static final Voltage k_maxVoltage = Voltage.volts(12.0);
   private static final RangeU<Voltage> k_voltageRange =

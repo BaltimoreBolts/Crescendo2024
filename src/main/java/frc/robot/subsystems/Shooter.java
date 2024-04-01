@@ -56,8 +56,16 @@ public class Shooter extends SubsystemBase {
     return new InstantCommand(() -> shooterAmpSpeed());
   }
 
+  public Command shooterOutakeCommand() {
+    return new InstantCommand(() -> shooterOutake());
+  }
+
   public void shooterOff() {
     this.power = 0;
+  }
+
+  public void shooterOutake() {
+    this.power = -0.1;
   }
 
   public void shooterAtSpeed() {

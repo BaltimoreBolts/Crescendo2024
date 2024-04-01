@@ -94,7 +94,7 @@ public class Swerve extends SubsystemBase {
             // your Constants class
             new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
             new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
-            4.5, // Max module speed, in m/s
+            7.0, // Max module speed, in m/s
             0.6, // Drive base radius in meters. Distance from robot center to furthest module.
             new ReplanningConfig() // Default path replanning config. See the API for the options
             // here
@@ -348,44 +348,4 @@ public class Swerve extends SubsystemBase {
       }
     }
   }
-
-  // public Command followPathCommand() {
-  //   .followPathCommand()
-  // }
-
-  // public Command followPathCommand(String pathName){
-  //     PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
-
-  //     //You must wrap the path following command in a FollowPathWithEvents command in order for
-  // event markers to work
-  //     return FollowPathHolonomic(
-  //       path,
-  //       this::getWpiPose, // Robot pose supplier
-  //       this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-  //       this::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE
-  // ChassisSpeeds
-  //       new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live
-  // in your Constants class
-  //           new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-  //           new PIDConstants(5.0, 0.0, 0.0), // Rotation PID constants
-  //           1.0, // Max module speed, in m/s
-  //           0.6, // Drive base radius in meters. Distance from robot center to furthest module.
-  //           new ReplanningConfig() // Default path replanning config. See the API for the options
-  // here
-  //         ),
-  //         () -> {
-  //             // Boolean supplier that controls when the path will be mirrored for the red
-  // alliance
-  //             // This will flip the path being followed to the red side of the field.
-  //             // THE ORIGIN WILL REMAIN ON THE BLUE SI
-  //             var alliance = DriverStation.getAlliance();
-  //             if (alliance.isPresent()) {
-  //                 return alliance.get() == DriverStation.Alliance.Red;
-  //             }
-  //             return false;
-  //         },
-  //         this // Reference to this subsystem to set requirements
-  //       );
-  // }
-
 }
