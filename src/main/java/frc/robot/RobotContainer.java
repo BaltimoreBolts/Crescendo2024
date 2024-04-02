@@ -86,6 +86,10 @@ public class RobotContainer {
             .andThen(new WaitCommand(0.25))
             .andThen(intake.intakeOffCommand())));
 
+    NamedCommands.registerCommand(
+        "offSubs",
+        (intake.intakeOffCommand().alongWith(m_shooter.shooterOffCommand())));
+
     SmartDashboard.putNumber("drive/speed", 0.0);
     SmartDashboard.putNumber("drive/velocity(RPM)", 0.0);
 
