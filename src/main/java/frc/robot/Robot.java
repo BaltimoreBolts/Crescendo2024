@@ -41,7 +41,7 @@ public class Robot extends TimedRobot {
     DataLogManager.start();
 
     fishEye = CameraServer.startAutomaticCapture();
-    fishEye.setVideoMode(PixelFormat.kYUYV, 320, 240, 10);
+    fishEye.setVideoMode(PixelFormat.kYUYV, 640, 480, 10);
     fishEye.setConnectionStrategy(ConnectionStrategy.kKeepOpen);
   }
 

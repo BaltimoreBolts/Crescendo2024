@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ProxyCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.library.LimelightHelpers;
@@ -22,7 +21,6 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Swerve;
 import frc.robot.utils.LEDlights;
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 import org.growingstems.measurements.Angle;
 
 /**
@@ -209,9 +207,7 @@ public class RobotContainer {
     // B - amp arm position
 
     // Arm Auto Control
-    Supplier<Command> shuffleboardPos = () ->
-        m_arm.setPositionCommand(Angle.degrees(SmartDashboard.getNumber("arm/set arm Pos", 0.0)));
-    driver.a().onTrue(new ProxyCommand(shuffleboardPos));
+    driver.a().onTrue(m_arm.setPositionCommand(Angle.degrees(-4.0)));
     driver.b().onTrue(m_arm.setPositionCommand(Angle.degrees(95.0)));
     driver.rightBumper().onTrue(m_arm.setPositionCommand(Angle.degrees(-2.0)));
     driver.leftTrigger(0.5).onTrue(m_arm.setPositionCommand(Angle.degrees(15)));
